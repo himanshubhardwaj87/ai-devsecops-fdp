@@ -1,0 +1,30 @@
+{
+  "v": 4,
+  "createdOnFiles": {"v": 1, "at": "2026-11-10T10:00:00Z"},
+  "lists": "css",
+  "title": "AI-Driven DevSecOps",
+  "cover": "cover",
+  "order": [
+    "cover", "why", "agenda",
+    "shift-left", "gaps", "ai-roles",
+    "detect-compare", "iforest", "detect-result",
+    "aws-pipeline", "pipeline", "scanners", "context", "triage-design", "ai-risks",
+    "policy", "controls", "evidence",
+    "demo-plan", "demo-result",
+    "classroom", "research", "takeaways", "thanks"
+  ],
+  "sections": {
+    "s1": {"description": "Opening: why security has to move at the speed of delivery, and the plan for the session.", "start": "cover"},
+    "s2": {"description": "Foundations: what DevSecOps is, where it struggles today, and the three jobs AI can take on.", "start": "shift-left"},
+    "s3": {"description": "Intelligent threat detection: learning normal behaviour instead of writing signatures.", "start": "detect-compare"},
+    "s4": {"description": "Automated security: scanners in the pipeline and an LLM that triages their output with guardrails.", "start": "aws-pipeline"},
+    "s5": {"description": "Continuous compliance: policy as code and controls evaluated on every build.", "start": "policy"},
+    "s6": {"description": "Live demo: a vulnerable service blocked by the pipeline, fixed, and released.", "start": "demo-plan"},
+    "s7": {"description": "Taking it to the classroom: lab ideas, research directions and takeaways.", "start": "classroom"}
+  },
+  "faces": {
+    "ibm-plex-sans": {"family": "IBM Plex Sans", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"},
+    "jetbrains-mono": {"family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap"}
+  },
+  "designSystems": []
+}

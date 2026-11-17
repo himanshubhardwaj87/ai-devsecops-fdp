@@ -1,0 +1,26 @@
+<section id="gaps" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Foundations</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">Where automated pipelines still struggle</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:36px 40px">
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Alert fatigue</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">Scanners report everything they match. People stop reading long lists.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:36px 40px">
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Severity without context</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">A tool rates the weakness class, not whether it is reachable in your code.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:36px 40px">
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Signatures miss the new</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">A detection rule describes an attack someone has already seen.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:36px 40px">
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Audits are snapshots</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">Compliance is checked once a year. The system changes every day.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>Putting scanners in a pipeline is the easy part. Four problems remain, and each maps to something we will address. Alert fatigue: our small demo app alone produces a few dozen findings. Severity without context: a scanner will call a SQL injection on the login page 'medium' because it only sees the pattern. Signatures: they cannot describe an attack nobody has written a rule for. Audits: a yearly checklist says little about the build that shipped this morning. Ask whether anyone has run a scanner on student projects and what happened to the report.</aside>
+</section>

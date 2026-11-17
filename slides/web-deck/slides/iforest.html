@@ -1,0 +1,43 @@
+<section id="iforest" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 1 · Intelligent threat detection</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">Isolation Forest: odd points are easy to cut off</h2>
+</div>
+<div style="display:flex;gap:64px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;gap:24px;align-items:flex-start">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;font-weight:600;color:#166B62">1</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#44505F">Split the data with random cuts, many times over.</p>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;font-weight:600;color:#166B62">2</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#44505F">A point unlike the rest ends up alone after very few cuts.</p>
+</div>
+<div style="display:flex;gap:24px;align-items:flex-start">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;font-weight:600;color:#166B62">3</p>
+<p style="flex:1;font-size:32px;line-height:1.4;color:#44505F">Few cuts means a high anomaly score. No labels and no attack examples are needed.</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:32px">
+<svg aria-label="Scatter of client behaviour: a dense cluster of normal clients crossed by many cut lines, and one outlier separated by only two cuts" width="640" height="360" viewBox="0 0 640 360">
+<g stroke="#B9C2CC" stroke-width="2">
+<line x1="150" y1="130" x2="150" y2="340"/><line x1="230" y1="130" x2="230" y2="340"/><line x1="310" y1="130" x2="310" y2="340"/>
+<line x1="60" y1="200" x2="400" y2="200"/><line x1="60" y1="270" x2="400" y2="270"/>
+</g>
+<g stroke="#E9A23B" stroke-width="5"><line x1="430" y1="10" x2="430" y2="350"/><line x1="430" y1="130" x2="630" y2="130"/></g>
+<g fill="#166B62">
+<circle cx="95" cy="160" r="9"/><circle cx="125" cy="235" r="9"/><circle cx="110" cy="300" r="9"/><circle cx="175" cy="170" r="9"/>
+<circle cx="190" cy="230" r="9"/><circle cx="170" cy="310" r="9"/><circle cx="205" cy="290" r="9"/><circle cx="255" cy="155" r="9"/>
+<circle cx="270" cy="225" r="9"/><circle cx="250" cy="300" r="9"/><circle cx="290" cy="250" r="9"/><circle cx="335" cy="170" r="9"/>
+<circle cx="350" cy="240" r="9"/><circle cx="330" cy="305" r="9"/><circle cx="375" cy="290" r="9"/><circle cx="215" cy="185" r="9"/>
+<circle cx="140" cy="180" r="9"/><circle cx="295" cy="185" r="9"/><circle cx="365" cy="215" r="9"/><circle cx="235" cy="255" r="9"/>
+</g>
+<circle cx="540" cy="65" r="16" fill="#E9A23B" stroke="#0F1B2D" stroke-width="3"/>
+</svg>
+<p style="font-size:24px;line-height:1.4;color:#44505F;width:640px">Amber point: alone after 2 cuts. Green points: still together after 5.</p>
+</div>
+</div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.4;color:#44505F">Features per client: requests · error rate · distinct paths · failed logins · response size · night-time share</p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>Isolation Forest is a good first model to teach because the idea fits in one picture. Build many random trees; each tree keeps cutting the data along a random feature at a random value. A normal client sits in a crowd, so it takes many cuts to isolate it. An unusual client is isolated almost immediately. The average number of cuts becomes the anomaly score. It is unsupervised: we never show it an attack. In the demo each client becomes one row with the six features at the bottom. In scikit-learn the model is three lines of code, which makes it a practical lab exercise.</aside>
+</section>

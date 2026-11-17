@@ -1,0 +1,32 @@
+<section id="policy" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 3 · Continuous compliance</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">The release rule is a file in the repository</h2>
+</div>
+<div style="display:flex;gap:64px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:6px;background:#0F1B2D;border-radius:16px;padding:40px 48px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#C5D0DC"># policy.yaml</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F5F3EE">max_allowed:</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F5F3EE">&#160;&#160;P0: <span style="color:#E9A23B">0</span></p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F5F3EE">&#160;&#160;P1: <span style="color:#E9A23B">0</span></p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F5F3EE">block_on_any_secret: <span style="color:#E9A23B">true</span></p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;line-height:1.5;color:#F5F3EE">max_failed_controls: <span style="color:#E9A23B">0</span></p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:32px;justify-content:center">
+<div style="display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Reviewed like code</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">Changing the rule needs a pull request and an approver.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Enforced on every build</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">No exceptions by email. The gate returns pass or block.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">People own the threshold</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">AI supplies priorities. It cannot change what is allowed.</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>Start part three. Compliance usually lives in documents. Policy as code moves the rule into the repository, next to the software it governs. This is the actual policy file from the demo: zero P0, zero P1, no secrets, no failing controls. Three consequences. It has version history, so an auditor can see who relaxed a rule and when. It runs on every build, so there is no gap between the rule and its enforcement. And it separates duties: the model produces priorities, but only a person can change the threshold. In the demo, try changing P1 to 5 live and re-running to show the gate respond.</aside>
+</section>

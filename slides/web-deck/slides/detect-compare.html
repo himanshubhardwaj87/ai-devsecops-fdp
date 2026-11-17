@@ -1,0 +1,16 @@
+<section id="detect-compare" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 1 · Intelligent threat detection</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">Two ways to spot an attack</h2>
+</div>
+<table style="font-size:32px;color:#44505F;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px">
+<tr style="background:#0F1B2D"><th style="width:20%;color:#F5F3EE;text-align:left;font-weight:600;padding:20px 28px"> </th><th style="width:40%;color:#F5F3EE;text-align:left;font-weight:600">Signature-based</th><th style="width:40%;color:#F5F3EE;text-align:left;font-weight:600">Behaviour-based</th></tr>
+<tr><td style="color:#0F1B2D">It knows</td><td>Patterns of known attacks</td><td>What normal looks like</td></tr>
+<tr><td style="color:#0F1B2D">It catches</td><td>Known attacks, precisely</td><td>Unusual behaviour, including new attacks</td></tr>
+<tr><td style="color:#0F1B2D">It misses</td><td>Anything without a rule</td><td>Attacks that look like normal use</td></tr>
+<tr><td style="color:#0F1B2D">Main cost</td><td>Writing and updating rules</td><td>False alarms to investigate</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4;font-weight:600">Use both: signatures for precision, behaviour for coverage.</p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>Start part one. A signature is a rule such as 'block requests containing this string'. It is precise and explainable, and blind to anything new. A behaviour-based detector learns a baseline and reports deviations; it can catch an attack nobody has seen, and it pays for that with false alarms. Neither replaces the other. For students this is a nice link between a networks course and a machine learning course: the same problem seen as pattern matching and as anomaly detection.</aside>
+</section>

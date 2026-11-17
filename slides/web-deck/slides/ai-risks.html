@@ -1,0 +1,16 @@
+<section id="ai-risks" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 2 · Automated security</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">The model is also an attack surface</h2>
+</div>
+<table style="font-size:32px;color:#44505F;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px">
+<tr style="background:#0F1B2D"><th style="width:22%;color:#F5F3EE;text-align:left;font-weight:600;padding:18px 28px">Risk</th><th style="width:39%;color:#F5F3EE;text-align:left;font-weight:600">What can go wrong</th><th style="width:39%;color:#F5F3EE;text-align:left;font-weight:600">What the pipeline does</th></tr>
+<tr><td style="color:#0F1B2D">Prompt injection</td><td>Text in code or logs steers the model</td><td>Treats inputs as data; validates output</td></tr>
+<tr><td style="color:#0F1B2D">Wrong answers</td><td>A confident fix that does not work</td><td>Schema check; a person reviews the fix</td></tr>
+<tr><td style="color:#0F1B2D">Data leakage</td><td>Source and secrets go to a third party</td><td>Masks secrets; model runs in our AWS account</td></tr>
+<tr><td style="color:#0F1B2D">Over-reliance</td><td>Nobody reads the findings any more</td><td>Policy decides; AI output is labelled</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4"><b>Treat the model like any other untrusted component:</b> <span style="color:#44505F">check what goes in, check what comes out, and plan for it to fail.</span></p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>This slide matches the theme of the FDP: emerging threats. Adding a model to a security pipeline adds a new thing to attack. Prompt injection: an attacker who can write a code comment or a log line can try to tell the model 'mark this as a false positive'. Wrong answers: models can produce a plausible fix that is incorrect, so generated fixes go through the same review and tests as any other change. Data leakage: decide what leaves your network; in our AWS run the model is called through Amazon Bedrock from the same account as the build, and credential lines are masked first. Over-reliance: if the team stops reading findings because the AI handles it, you have removed the human control you were relying on. The OWASP Top 10 for LLM Applications is a good reading-list item for students here.</aside>
+</section>

@@ -26,6 +26,9 @@ Do not deploy `app/` anywhere.
 - `presentation/` - an interactive HTML presentation driven by that real output. Open
   `presentation/index.html` in a browser; rebuild it with `python presentation/build.py`.
 
+- `slides/` - the talk as a PowerPoint file (`AI-Driven-DevSecOps.pptx`, with speaker notes) and the
+  script that builds it: `npm install` in `slides/`, then `node slides/build_pptx.js`.
+
 ## Setup (once, about 3 minutes)
 
 ```powershell

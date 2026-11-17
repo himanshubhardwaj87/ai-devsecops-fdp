@@ -1,0 +1,49 @@
+<section id="pipeline" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 2 · Automated security</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">Inside the security gate: six stages</h2>
+</div>
+<div style="display:flex;gap:12px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:28px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#166B62">1</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2">Scan</h3>
+<p style="font-size:24px;line-height:1.35;color:#44505F">Secrets, code, packages, config</p>
+</div>
+<x-connector style="width:40px;color:#0F1B2D" from="tl"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:28px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#166B62">2</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2">Triage</h3>
+<p style="font-size:24px;line-height:1.35;color:#44505F">AI ranks findings, drafts fixes</p>
+</div>
+<x-connector style="width:40px;color:#0F1B2D" from="tl"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:28px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#166B62">3</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2">Detect</h3>
+<p style="font-size:24px;line-height:1.35;color:#44505F">ML flags odd clients in logs</p>
+</div>
+<x-connector style="width:40px;color:#0F1B2D" from="tl"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:28px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#166B62">4</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2">Comply</h3>
+<p style="font-size:24px;line-height:1.35;color:#44505F">Controls checked from evidence</p>
+</div>
+<x-connector style="width:40px;color:#0F1B2D" from="tl"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#0F1B2D;border:1px solid #0F1B2D;border-radius:16px;padding:28px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#E9A23B">5</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2;color:#F5F3EE">Gate</h3>
+<p style="font-size:24px;line-height:1.35;color:#C5D0DC">Policy file says pass or block</p>
+</div>
+<x-connector style="width:40px;color:#0F1B2D" from="tl"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:28px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#166B62">6</p>
+<h3 style="font-size:32px;font-weight:600;line-height:1.2">Report</h3>
+<p style="font-size:24px;line-height:1.35;color:#44505F">One dashboard per build</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#0F1B2D;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#F5F3EE">python -m pipeline.run --target app --ai bedrock --sca inspector</p>
+<p style="font-size:24px;line-height:1.4;color:#C5D0DC">Exit code 0 lets the release continue. Exit code 1 blocks it. The same command runs on a laptop and in AWS CodeBuild.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>Now open the security gate from the previous slide. Inside it: six stages, one command. Scan runs four scanners. Triage sends their output to a language model. Detect runs the Isolation Forest we just discussed. Comply maps what was found onto control frameworks. Gate reads a policy file and returns pass or block. Report writes an HTML dashboard. The important engineering point is the exit code: a CI system such as GitHub Actions or Jenkins only needs that one number to stop a merge. Everything is plain Python so students can read every stage.</aside>
+</section>

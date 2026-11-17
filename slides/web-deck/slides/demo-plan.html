@@ -1,0 +1,31 @@
+<section id="demo-plan" data-transition="fade" style="background:#0F1B2D;color:#F5F3EE;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#E9A23B">Live demo · ShopLite</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">Break it, read it, fix it, release it</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#1A2A42;border:1px solid #2E4160;border-radius:16px;padding:32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#E9A23B">Step 1</p>
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Break</h3>
+<p style="font-size:32px;line-height:1.35;color:#C5D0DC">Release the vulnerable app in AWS. The gate blocks it.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#1A2A42;border:1px solid #2E4160;border-radius:16px;padding:32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#E9A23B">Step 2</p>
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Read</h3>
+<p style="font-size:32px;line-height:1.35;color:#C5D0DC">Open the evidence. Follow one finding from scanner to fix.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#1A2A42;border:1px solid #2E4160;border-radius:16px;padding:32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#E9A23B">Step 3</p>
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Fix</h3>
+<p style="font-size:32px;line-height:1.35;color:#C5D0DC">Compare the two versions of the code. Seven flaws, seven fixes.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#1A2A42;border:1px solid #2E4160;border-radius:16px;padding:32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#E9A23B">Step 4</p>
+<h3 style="font-size:44px;font-weight:600;line-height:1.2">Release</h3>
+<p style="font-size:32px;line-height:1.35;color:#C5D0DC">Release the fixed app. It passes, then waits for approval.</p>
+</div>
+</div>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.5;color:#C5D0DC">python aws/package.py app &#160;&#160;→&#160;&#160; upload release.zip to S3 &#160;&#160;→&#160;&#160; start the pipeline</p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#C5D0DC">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>Switch to the terminal after this slide. ShopLite is a small Flask web service with seven deliberate flaws. A full AWS run takes several minutes, so start the vulnerable release before this section and let it run while you talk. Step 1: in the CodePipeline console show the SecurityGate stage failed, then open its build log: scan counts, the AI triage list, the three attackers, the failing controls and BLOCKED. Step 2: open report.html from the evidence folder in S3 and follow the SQL injection row from scanner severity to suggested fix. Step 3: open app/app.py and app_secure/app.py side by side; each flaw and fix is numbered in comments. Step 4: package and release the fixed app; show the gate passing, the staging image in ECR and the pipeline waiting at HumanApproval, then approve it yourself. Fallback if AWS or the network misbehaves: the interactive presentation shows the same real results, and the same pipeline runs on the laptop with python -m pipeline.run --target app --step. Commands are in aws/README.md.</aside>
+</section>

@@ -1,0 +1,16 @@
+<section id="scanners" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 2 · Automated security</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">Four scanners, one common format</h2>
+</div>
+<table style="font-size:32px;color:#44505F;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px">
+<tr style="background:#0F1B2D"><th style="width:24%;color:#F5F3EE;text-align:left;font-weight:600;padding:20px 28px">Scan type</th><th style="width:24%;color:#F5F3EE;text-align:left;font-weight:600">Tool in the demo</th><th style="width:52%;color:#F5F3EE;text-align:left;font-weight:600">What it finds</th></tr>
+<tr><td style="color:#0F1B2D">Secrets</td><td>Regex rules</td><td>Keys and passwords committed to the repository</td></tr>
+<tr><td style="color:#0F1B2D">SAST</td><td>Bandit</td><td>Dangerous patterns in the Python source</td></tr>
+<tr><td style="color:#0F1B2D">SCA</td><td>Amazon Inspector</td><td>Dependencies with published vulnerabilities</td></tr>
+<tr><td style="color:#0F1B2D">IaC</td><td>Policy checks</td><td>Unsafe Dockerfile and Kubernetes settings</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4"><b>Every result becomes the same record:</b> <span style="color:#44505F">id, rule, severity, file, line and CWE. Later stages never need to know which tool spoke.</span></p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>Four kinds of scanning, each looking at a different layer. Secret scanning looks for credentials in the repository. SAST, static application security testing, reads source code without running it; Bandit is the standard open-source tool for Python. SCA, software composition analysis, checks third-party packages against a vulnerability database; in AWS we send the package list to Amazon Inspector, and on a laptop the same stage uses the free pip-audit tool. IaC, infrastructure as code, checks deployment files. Everything except Inspector is free and open source, so a college lab can run the whole thing without an AWS account. The design lesson is normalisation: each tool has its own output format, and we convert everything into one record with a CWE, the Common Weakness Enumeration id, so the AI and the compliance stage have one input.</aside>
+</section>

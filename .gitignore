@@ -5,3 +5,5 @@ out/
 aws/dist/
 *.db
 .env
+node_modules/
+slides/qa/

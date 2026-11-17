@@ -1,0 +1,17 @@
+<section id="demo-result" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Live demo · ShopLite</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">What we just saw, in numbers</h2>
+</div>
+<table style="font-size:32px;color:#44505F;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px">
+<tr style="background:#0F1B2D"><th style="width:40%;color:#F5F3EE;text-align:left;font-weight:600;padding:18px 28px"> </th><th style="width:30%;color:#F5F3EE;text-align:left;font-weight:600">Vulnerable app</th><th style="width:30%;color:#F5F3EE;text-align:left;font-weight:600">Fixed app</th></tr>
+<tr><td style="color:#0F1B2D">Findings to review</td><td>24</td><td>0</td></tr>
+<tr><td style="color:#0F1B2D">Release-blocking after AI triage</td><td>16</td><td>0</td></tr>
+<tr><td style="color:#0F1B2D">Packages with known vulnerabilities</td><td>5 of 5</td><td>0 of 5</td></tr>
+<tr><td style="color:#0F1B2D">Controls passing</td><td>2 of 17</td><td>17 of 17</td></tr>
+<tr><td style="color:#0F1B2D">Release pipeline</td><td style="color:#B3261E">Blocked at the gate</td><td style="color:#1B6E3C">Passed, awaiting approval</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4"><b>Same pipeline, same policy, two outcomes.</b> <span style="color:#44505F">Nobody argued about whether to ship. The evidence decided.</span></p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026 · Source: AWS run, us-east-1, 17 November 2026; counts change as new CVEs are published</p>
+<aside>Come back to slides here to summarise what the audience just watched. The vulnerable app produced 24 findings after two duplicates were merged. AI triage on Bedrock judged 16 of them release-blocking: 10 at P0 and 6 at P1. It also lowered some: two outdated packages went down to P2 because the vulnerable code paths are not reached in this app. Every one of the five pinned packages had published vulnerabilities according to Amazon Inspector, and only 2 of 17 controls passed. After the fixes: nothing to review, all 17 controls pass, and the pipeline built the staging image and stopped for approval. The point of the last line: the decision to block or release did not depend on anyone's opinion on the day. If your live numbers differ slightly from the slide, say so; vulnerability databases update daily, which is itself a reason to scan continuously.</aside>
+</section>

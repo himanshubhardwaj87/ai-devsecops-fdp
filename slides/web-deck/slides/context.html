@@ -1,0 +1,25 @@
+<section id="context" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 2 · Automated security</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">One finding, read two ways</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#0F1B2D;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.5;color:#C5D0DC"># app/app.py, the /login route</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.5;color:#F5F3EE">query = f"SELECT id FROM users WHERE name = '<span style="color:#E9A23B">{username}</span>' AND pw = '{digest}'"</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.5;color:#F5F3EE">row = get_db().execute(query).fetchone()</p>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#44505F">Scanner severity (Bandit B608)</p>
+<h3 style="font-size:72px;font-weight:700;line-height:1.1;color:#8A5A00">Medium</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">It sees a query built from a string. It does not know where the string comes from.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#44505F">Triage priority, in context</p>
+<h3 style="font-size:72px;font-weight:700;line-height:1.1;color:#B3261E">P0: blocks release</h3>
+<p style="font-size:32px;line-height:1.4;color:#44505F">The string is a login form field on a public route. No account is needed to exploit it.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>This is the key idea of part two. Here is the login query from our demo app; the username goes straight into the SQL text. Bandit reports it at medium severity, which is fair from the tool's point of view: it matches a pattern and cannot tell whether the input is attacker-controlled. A human reviewer would look three lines up, see that username comes from the request form on an unauthenticated route, and call it the most urgent issue in the file. Triage is that step: reading the finding in its context. Until recently only a person could do it. A language model can now do a useful first pass, and that is where it earns its place in the pipeline.</aside>
+</section>

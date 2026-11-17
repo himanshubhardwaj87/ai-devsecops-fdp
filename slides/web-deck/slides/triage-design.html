@@ -1,0 +1,42 @@
+<section id="triage-design" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 2 · Automated security</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">How the AI triage stage is built</h2>
+</div>
+<div style="display:flex;gap:12px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:28px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#166B62">In</p>
+<p style="font-size:32px;line-height:1.35">Each finding plus the lines of code around it</p>
+</div>
+<x-connector style="width:48px;color:#0F1B2D" from="tl"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#0F1B2D;border:1px solid #0F1B2D;border-radius:16px;padding:28px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#E9A23B">Claude on Amazon Bedrock</p>
+<p style="font-size:32px;line-height:1.35;color:#F5F3EE">Asked for priority, exploitability and a concrete fix</p>
+</div>
+<x-connector style="width:48px;color:#0F1B2D" from="tl"></x-connector>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px;padding:28px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#166B62">Out</p>
+<p style="font-size:32px;line-height:1.35">One typed record per finding, checked against a schema</p>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:16px 24px">
+<div style="display:flex;gap:20px;align-items:flex-start;border-top:4px solid #166B62;padding:20px 0 0">
+<x-icon name="Lock" style="color:#166B62;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:32px;line-height:1.35;color:#44505F"><b style="color:#0F1B2D">Secrets are masked</b> before anything leaves the machine.</p>
+</div>
+<div style="display:flex;gap:20px;align-items:flex-start;border-top:4px solid #166B62;padding:20px 0 0">
+<x-icon name="Warning" style="color:#166B62;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:32px;line-height:1.35;color:#44505F"><b style="color:#0F1B2D">Scanner text is data,</b> never instructions to the model.</p>
+</div>
+<div style="display:flex;gap:20px;align-items:flex-start;border-top:4px solid #166B62;padding:20px 0 0">
+<x-icon name="CheckCircle" style="color:#166B62;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:32px;line-height:1.35;color:#44505F"><b style="color:#0F1B2D">Output is validated.</b> Unknown finding ids are dropped.</p>
+</div>
+<div style="display:flex;gap:20px;align-items:flex-start;border-top:4px solid #166B62;padding:20px 0 0">
+<x-icon name="Tool" style="color:#166B62;width:40px;height:40px"></x-icon>
+<p style="flex:1;font-size:32px;line-height:1.35;color:#44505F"><b style="color:#0F1B2D">A rule table takes over</b> if the model is unavailable, and says so.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026</p>
+<aside>The top row is the happy path: findings with a few lines of surrounding code go in, the model is asked three specific questions, and it must answer in a fixed structure, so the next stage reads fields instead of parsing prose. The bottom half is what makes it safe to put in a pipeline, and it is the part to emphasise with students. One: credential lines are masked before the request is sent; our own unit test caught a case where a neighbouring line leaked a secret into the prompt. Two: code comments and scanner messages can contain text written by an attacker, so the prompt tells the model to treat them as content. Three: we never trust the answer blindly; ids the model invented are discarded and gaps are filled. Four: the pipeline still works without the model and labels the result as rule-based. Open pipeline/ai_triage.py during the demo to show these.</aside>
+</section>

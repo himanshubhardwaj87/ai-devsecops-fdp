@@ -1,0 +1,17 @@
+<section id="controls" data-transition="fade" style="background:#F5F3EE;color:#0F1B2D;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#166B62">Part 3 · Continuous compliance</p>
+<h2 style="font-size:72px;font-weight:600;line-height:1.1">From scanner output to control evidence</h2>
+</div>
+<table style="font-size:32px;color:#44505F;background:#FFFFFF;border:1px solid #D9D5CC;border-radius:16px">
+<tr style="background:#0F1B2D"><th style="width:22%;color:#F5F3EE;text-align:left;font-weight:600;padding:16px 28px">Framework</th><th style="width:38%;color:#F5F3EE;text-align:left;font-weight:600">Control</th><th style="width:40%;color:#F5F3EE;text-align:left;font-weight:600">Evidence from the pipeline</th></tr>
+<tr><td style="color:#0F1B2D">OWASP Top 10</td><td>A03 Injection</td><td>SAST findings for CWE-89, CWE-78</td></tr>
+<tr><td style="color:#0F1B2D">OWASP Top 10</td><td>A06 Vulnerable components</td><td>Dependency audit result</td></tr>
+<tr><td style="color:#0F1B2D">NIST SSDF</td><td>PW.7 Code review and analysis</td><td>SAST and secret scan results</td></tr>
+<tr><td style="color:#0F1B2D">ISO/IEC 27001</td><td>A.8.8 Technical vulnerabilities</td><td>Dependency audit result</td></tr>
+<tr><td style="color:#0F1B2D">ISO/IEC 27001</td><td>A.8.16 Monitoring activities</td><td>Anomaly detection ran on logs</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.4"><b>17 controls, three frameworks, every run.</b> <span style="color:#44505F">A pass means no contradicting evidence in this build. It is not a certificate.</span></p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#5B6676">AI-Driven DevSecOps · ATAL FDP 2026 · OWASP Top 10:2021, NIST SP 800-218 v1.1, ISO/IEC 27001:2022 Annex A</p>
+<aside>Continuous compliance is a mapping exercise. Each control in a framework asks a question, and the pipeline already holds the answer. OWASP A03, injection: do we have open SQL or command injection findings? NIST SSDF practice PW.7 asks that code be reviewed and analysed for vulnerabilities; the SAST run is that evidence. ISO 27001 Annex A control 8.8 covers technical vulnerability management; the dependency audit answers it. The demo evaluates 17 such controls. Be careful with the claim: this mapping is illustrative teaching material, and a real audit needs far more than tool output. Local context you can mention: CERT-In's 2022 directions require reporting certain incidents within six hours, and the Digital Personal Data Protection Act 2023 requires reasonable security safeguards; both push organisations towards evidence that is always current.</aside>
+</section>
