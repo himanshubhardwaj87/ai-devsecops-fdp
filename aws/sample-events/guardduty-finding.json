@@ -1,0 +1,15 @@
+{
+  "version": "0",
+  "id": "00000000-0000-0000-0000-000000000002",
+  "detail-type": "GuardDuty Finding",
+  "source": "aws.guardduty",
+  "account": "111122223333",
+  "region": "ap-south-1",
+  "resources": [],
+  "detail": {
+    "severity": 8,
+    "type": "UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS",
+    "title": "SAMPLE - credentials used from an external address (rehearsal event, not a real finding)",
+    "description": "Rehearsal event for the FDP demo. Instance credentials were used from an IP address outside AWS."
+  }
+}

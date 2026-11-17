@@ -1,0 +1,6 @@
+# Release policy - reviewed like code, enforced on every build.
+max_allowed:
+  P0: 0   # exploitable now / credential exposure
+  P1: 0   # must be fixed this sprint
+block_on_any_secret: true
+max_failed_controls: 0

@@ -1,0 +1,45 @@
+name: AI-driven DevSecOps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  security-pipeline:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [app, app_secure]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install pipeline tooling
+        run: pip install -r requirements.txt
+
+      - name: Unit tests for the pipeline itself
+        run: python -m pytest -q
+
+      # Scan -> AI triage -> threat detection -> compliance -> gate.
+      # Exit code 1 (gate blocked) fails the job, which blocks the merge.
+      - name: Run security pipeline on ${{ matrix.target }}
+        env:
+          # Stored as an encrypted repository secret, never in the workflow file.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m pipeline.run --target ${{ matrix.target }}
+
+      - name: Publish dashboard as evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: devsecops-report-${{ matrix.target }}
+          path: out/${{ matrix.target }}/

@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Driven DevSecOps Live</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one scene per screen, a slim control bar on top, the scene scrolls inside itself if it must. */
+:root {
+  --bg: #F5F3EE; --surface: #FFFFFF; --ink: #0F1B2D; --muted: #4A5565; --line: #D9D5CC;
+  --accent: #166B62; --hi: #E9A23B; --hi-ink: #0F1B2D;
+  --bad: #B3261E; --warn: #8A5A00; --good: #1B6E3C; --quiet: #5B6676;
+  --code-bg: #0F1B2D; --code-fg: #F5F3EE; --code-dim: #C5D0DC;
+  --sans: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1626; --surface: #15233A; --ink: #F1EEE6; --muted: #A9B6C6; --line: #2B3D5A;
+    --accent: #5CC8B8; --hi: #E9A23B; --hi-ink: #0C1626;
+    --bad: #FF8A80; --warn: #F0B95A; --good: #6FD39A; --quiet: #8FA0B5;
+    --code-bg: #070E1A; --code-fg: #F1EEE6; --code-dim: #A9B6C6; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1626; --surface: #15233A; --ink: #F1EEE6; --muted: #A9B6C6; --line: #2B3D5A;
+  --accent: #5CC8B8; --hi: #E9A23B; --hi-ink: #0C1626;
+  --bad: #FF8A80; --warn: #F0B95A; --good: #6FD39A; --quiet: #8FA0B5;
+  --code-bg: #070E1A; --code-fg: #F1EEE6; --code-dim: #A9B6C6; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans);
+  font-size: clamp(15px, 1.15vw, 22px); line-height: 1.45; display: flex; flex-direction: column; }
+h1, h2, h3, p { margin: 0; }
+h1, h2 { text-wrap: balance; letter-spacing: -0.01em; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--hi); outline-offset: 2px; }
+
+.bar { display: flex; align-items: center; gap: 0.8em; padding-block: 0.5em;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); font-size: 0.8em; }
+.bar .where { font-family: var(--mono); color: var(--muted); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar button { background: var(--surface); border: 1px solid var(--line); border-radius: 0.5em; padding: 0.3em 0.8em; }
+.bar button:hover { border-color: var(--accent); }
+.progress { height: 4px; background: var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.25s; }
+
+main { flex: 1; min-height: 0; overflow-y: auto; }
+.scene { min-height: 100%; display: flex; flex-direction: column; gap: 1.4em; padding-block: 2.2em;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.scene > * { width: 100%; max-width: min(100%, 88vw, 1500px); margin-inline: auto; }
+.scene.center { justify-content: center; }
+#detect { gap: 0.9em; padding-block: 1.4em; }
+#detect th, #detect td { padding-block: 0.25em; }
+.eyebrow { font-family: var(--mono); font-size: 0.75em; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: clamp(2.4em, 6vw, 5.2em); line-height: 1.04; font-weight: 700; }
+h2 { font-size: clamp(1.7em, 3.4vw, 3em); line-height: 1.1; font-weight: 600; }
+h3 { font-size: 1.25em; line-height: 1.2; font-weight: 600; }
+.lead { font-size: 1.35em; color: var(--muted); max-width: 40em; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+.hint { font-size: 0.8em; color: var(--quiet); }
+.hi { color: var(--hi); }
+.statement .hi-block { color: var(--accent); }
+
+.row { display: flex; flex-wrap: wrap; gap: 1em; }
+.row > * { flex: 1 1 14em; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22em), 1fr)); gap: 1.2em; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 0.8em; padding: 1.1em 1.3em; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 0.6em; min-width: 0; }
+
+/* choice buttons (stages, tabs, cards you can pick) */
+.pick { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 0.7em;
+  padding: 0.7em 0.9em; display: flex; flex-direction: column; gap: 0.2em; min-width: 0; }
+.pick:hover { border-color: var(--accent); }
+.pick[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pick[aria-pressed="true"] .muted, .pick[aria-pressed="true"] .eyebrow { color: var(--hi); }
+.pick b { font-size: 1.1em; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5em, 1fr)); gap: 0.6em; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 0.6em; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: transparent; padding: 0.35em 0.9em; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--bg); font-weight: 600; }
+
+.pill { display: inline-block; padding: 0.05em 0.6em; border-radius: 99em; font-size: 0.78em; font-weight: 700;
+  color: var(--bg); background: var(--quiet); white-space: nowrap; }
+.pill.P0, .pill.CRITICAL, .pill.FAIL { background: var(--bad); }
+.pill.P1, .pill.HIGH { background: var(--warn); }
+.pill.P2, .pill.MEDIUM, .pill.WARN { background: var(--quiet); }
+.pill.PASS { background: var(--good); }
+.verdict { font-size: 1.6em; font-weight: 700; }
+.verdict.pass { color: var(--good); } .verdict.fail { color: var(--bad); }
+.big { font-size: 2.4em; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.kv { display: flex; flex-wrap: wrap; gap: 1.6em; }
+.kv div { display: flex; flex-direction: column; align-items: flex-start; gap: 0.2em; }
+.kv span:not(.pill) { font-size: 0.8em; color: var(--muted); }
+
+.list { display: flex; flex-direction: column; gap: 0.35em; max-height: 46vh; overflow-y: auto; padding-right: 0.3em; }
+.item { display: flex; gap: 0.6em; align-items: baseline; text-align: left; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 0.5em; padding: 0.4em 0.7em; min-width: 0; }
+.item span.t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent); }
+.code { background: var(--code-bg); color: var(--code-fg); font-family: var(--mono); font-size: 0.85em;
+  border-radius: 0.7em; padding: 1em 1.2em; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.code .dim { color: var(--code-dim); } .code .mark { color: var(--hi); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+th, td { text-align: left; padding: 0.4em 0.6em; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+.scroll { overflow-x: auto; }
+.ctl { display: flex; flex-wrap: wrap; gap: 1.2em; align-items: center; }
+.ctl label { display: flex; gap: 0.5em; align-items: center; }
+input[type="number"] { width: 4.2em; padding: 0.2em 0.4em; background: var(--surface); border: 1px solid var(--line); border-radius: 0.4em; }
+select { padding: 0.25em 0.5em; background: var(--surface); border: 1px solid var(--line); border-radius: 0.4em; }
+input[type="range"] { accent-color: var(--accent); width: min(100%, 16em); }
+
+svg.chart { width: 100%; height: auto; max-height: 33vh; display: block; }
+.chart .axis { stroke: var(--line); stroke-width: 1; fill: none; }
+.chart text { fill: var(--muted); font-family: var(--mono); font-size: 13px; }
+.chart .dot { fill: var(--accent); opacity: 0.55; }
+.chart .dot.flag { fill: var(--hi); opacity: 1; stroke: var(--ink); stroke-width: 1.5; }
+.chart .dot.attack { stroke: var(--bad); stroke-width: 3; }
+.chart .dot:hover, .chart .dot.sel { opacity: 1; stroke: var(--ink); stroke-width: 3; }
+
+.notes { background: var(--surface); border-top: 2px solid var(--hi); padding-block: 0.8em; font-size: 0.85em; max-height: 30vh; overflow-y: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.scene aside { display: none; }
+@media (prefers-reduced-motion: reduce) { .progress i { transition: none; } }
+</style>
+
+</head>
+<body>
+<div class="bar">
+  <span class="where" id="where"></span>
+  <span class="seg" role="group" aria-label="Which app the data shows">
+    <button id="t-app" type="button" aria-pressed="true">Vulnerable app</button>
+    <button id="t-fix" type="button" aria-pressed="false">Fixed app</button>
+  </span>
+  <button id="b-notes" type="button" title="Speaker notes (N)">Notes</button>
+  <button id="b-prev" type="button" aria-label="Previous scene">←</button>
+  <button id="b-next" type="button" aria-label="Next scene">→</button>
+</div>
+<div class="progress"><i id="bar"></i></div>
+
+<main id="main">
+
+<section class="scene center" id="title" data-name="Title">
+  <p class="eyebrow">AICTE ATAL Faculty Development Programme · 14–19 December 2026 · IILM University, Gurugram</p>
+  <h1>AI-Driven DevSecOps</h1>
+  <p class="lead">Intelligent threat detection, automated security and continuous compliance.</p>
+  <p><b>Himanshu Bhardwaj</b> <span class="muted">· [Your designation], Provar</span></p>
+  <p class="hint">Use → and ← to move, N for speaker notes, F for full screen. Most scenes have something to click.</p>
+  <aside>Welcome and thank the organisers. Promise for the session: everyone will see a real pipeline block an insecure release, explain why, and let a fixed one through. Every number in this presentation comes from a real run of the demo project.</aside>
+</section>
+
+<section class="scene center statement" id="problem" data-name="The problem">
+  <p class="eyebrow">The problem</p>
+  <h1>Code ships every day.<br><span class="hi-block">Security reviews do not.</span></h1>
+  <p class="lead">Attackers already automate. A defence that waits for a person to read every alert loses on speed alone.</p>
+  <aside>Ask the room: how often does project code in your department get a security review? This gap between delivery speed and review speed is why DevSecOps exists, and why AI is being pulled into it.</aside>
+</section>
+
+<section class="scene" id="jobs" data-name="Three jobs for AI">
+  <p class="eyebrow">Foundations</p>
+  <h2>Three jobs for AI in the pipeline</h2>
+  <div class="row" id="jobs-row"></div>
+  <div class="panel" id="jobs-detail"></div>
+  <p><b>AI advises. Policy decides. People stay accountable.</b></p>
+  <aside>The three cards are the three phrases in the talk title. Click each one as you introduce it. Stress the last line: the model never approves a release on its own.</aside>
+</section>
+
+<section class="scene" id="lifecycle" data-name="Security at every stage">
+  <p class="eyebrow">Foundations</p>
+  <h2>Security at every stage of delivery</h2>
+  <div class="steps" id="life-steps"></div>
+  <div class="panel" id="life-detail"></div>
+  <aside>Click through the stages left to right. Shift left: find the flaw while the developer has the file open. Shield right: keep watching after release. The demo covers Code, Build, Release, Deploy and Monitor.</aside>
+</section>
+
+<section class="scene" id="detect" data-name="Intelligent threat detection">
+  <p class="eyebrow">Part 1 · Intelligent threat detection</p>
+  <h2>Which clients look unlike the rest?</h2>
+  <div class="grid2">
+    <div class="panel stack">
+      <div class="ctl">
+        <label>Vertical axis <select id="det-axis"></select></label>
+      </div>
+      <svg class="chart" id="det-chart" viewBox="0 0 640 400" role="img" aria-label="Scatter plot of clients by request count and a chosen feature"></svg>
+      <p class="hint">Each dot is one client. Amber = flagged. Red ring = an attacker we planted. Click a dot.</p>
+    </div>
+    <div class="stack">
+      <div class="panel stack">
+        <label class="stack">How many clients should the model flag? <input type="range" id="det-n" min="1" max="15" step="1"></label>
+        <div class="kv" id="det-kv"></div>
+        <p class="hint" id="det-note"></p>
+      </div>
+      <div class="panel stack" id="det-detail"></div>
+    </div>
+  </div>
+  <aside>An Isolation Forest scored every client; nobody told it what an attack looks like. First, switch the vertical axis: the data-exfiltration client hides in the crowd on error rate and only stands out on response size, which is why one feature is never enough. Then move the slider: flag more clients and you catch nothing new but add false alarms. That trade-off is the real engineering decision. The logs are synthetic, so the truth is known.</aside>
+</section>
+
+<section class="scene" id="aws" data-name="The release pipeline in AWS">
+  <p class="eyebrow">Part 2 · Automated security</p>
+  <h2>The release pipeline, running in AWS</h2>
+  <div class="steps" id="aws-steps"></div>
+  <div class="panel stack" id="aws-detail"></div>
+  <p class="hint">AWS CodePipeline in us-east-1, run on 17 November 2026. Switch between the two apps in the top bar to see where each release stopped.</p>
+  <aside>This is the real pipeline in an AWS account. Click the stages left to right for the vulnerable app: it never gets past the security gate. Then switch to "Fixed app": the gate passes, an image is built for staging, and the pipeline stops and waits for a person. Nothing reaches production without that approval. Have the CodePipeline console open in another tab to show the same thing live.</aside>
+</section>
+
+<section class="scene" id="pipeline" data-name="Inside the security gate">
+  <p class="eyebrow">Part 2 · Automated security</p>
+  <h2>Inside the security gate: six stages</h2>
+  <div class="code">python -m pipeline.run --target <span class="mark" id="pipe-target">app</span> --ai bedrock --sca inspector</div>
+  <div class="steps" id="pipe-steps"></div>
+  <div class="panel stack" id="pipe-detail"></div>
+  <aside>The security gate is one CodeBuild step running this command. Click each stage in order; the panel shows what that stage actually produced in the real AWS run. Dependency data comes from Amazon Inspector and the triage from Claude on Amazon Bedrock. The exit code is the only thing CodePipeline needs to stop the release. The same command runs on a laptop with free tools, which is what students would use.</aside>
+</section>
+
+<section class="scene" id="findings" data-name="Findings and triage">
+  <p class="eyebrow">Part 2 · Automated security</p>
+  <h2>From a flat list to an ordered one</h2>
+  <div class="ctl">
+    <span class="seg" role="group" aria-label="Filter by scanner" id="find-filter"></span>
+    <span class="hint" id="find-count"></span>
+  </div>
+  <div class="grid2">
+    <div class="list" id="find-list"></div>
+    <div class="panel stack" id="find-detail"></div>
+  </div>
+  <aside>Filter by scanner, then click a finding. Compare the two columns in the detail: what the scanner said and what triage concluded. The SQL injection is the best example: MEDIUM from the scanner, P0 after triage. The triage source is shown in the panel; say honestly whether it was the model or the rule table.</aside>
+</section>
+
+<section class="scene" id="context" data-name="One finding, two readings">
+  <p class="eyebrow">Part 2 · Automated security</p>
+  <h2>One finding, read two ways</h2>
+  <div class="code"><span class="dim"># app/app.py, the /login route</span>
+query = f"SELECT id FROM users WHERE name = '<span class="mark">{username}</span>' AND pw = '{digest}'"
+row = get_db().execute(query).fetchone()</div>
+  <div class="grid2">
+    <div class="panel stack">
+      <p class="eyebrow">Scanner severity (Bandit B608)</p>
+      <p class="big" style="color:var(--warn)">Medium</p>
+      <p class="muted">It sees a query built from a string. It does not know where the string comes from.</p>
+    </div>
+    <div class="panel stack">
+      <p class="eyebrow">Triage priority, in context</p>
+      <button class="pick" id="ctx-reveal" type="button" aria-pressed="false"><b>Read it in context</b><span class="muted">Click to see what triage concludes</span></button>
+      <div class="stack" id="ctx-answer" hidden>
+        <p class="big" style="color:var(--bad)">P0: blocks release</p>
+        <p class="muted">The string is a login form field on a public route. No account is needed to exploit it.</p>
+      </div>
+    </div>
+  </div>
+  <aside>Ask the audience what priority they would give before you click. A scanner matches a pattern; a reviewer looks three lines up and sees the input comes from an unauthenticated form. Triage is that step, and it is where a language model earns its place.</aside>
+</section>
+
+<section class="scene" id="guardrails" data-name="The model is an attack surface">
+  <p class="eyebrow">Part 2 · Automated security</p>
+  <h2>The model is also an attack surface</h2>
+  <div class="row" id="risk-row"></div>
+  <div class="panel stack" id="risk-detail"></div>
+  <aside>Click each risk. This is the "emerging threats" part of the FDP theme: adding a model to a security pipeline adds a new thing to attack. The masking guardrail is a true story from building this demo: a unit test caught a neighbouring line leaking a credential into the prompt.</aside>
+</section>
+
+<section class="scene" id="gate" data-name="Policy as code">
+  <p class="eyebrow">Part 3 · Continuous compliance</p>
+  <h2>The release rule is a file. Change it and see.</h2>
+  <div class="grid2">
+    <div class="panel stack">
+      <p class="eyebrow">policy.yaml</p>
+      <div class="ctl"><label>P0 findings allowed <input type="number" id="g-p0" min="0" max="50" value="0"></label></div>
+      <div class="ctl"><label>P1 findings allowed <input type="number" id="g-p1" min="0" max="50" value="0"></label></div>
+      <div class="ctl"><label><input type="checkbox" id="g-sec" checked> Block on any hard-coded secret</label></div>
+      <div class="ctl"><label>Failing controls allowed <input type="number" id="g-ctl" min="0" max="20" value="0"></label></div>
+      <button class="pick" id="g-reset" type="button"><span>Reset to the real policy</span></button>
+    </div>
+    <div class="panel stack" id="g-out"></div>
+  </div>
+  <aside>These four settings are the real policy file from the demo. Loosen P1 to 12 and the gate still blocks: the secrets and failing controls hold it. That is defence in depth in a policy. Make the point that changing this file needs a pull request and an approver, so there is a record of who relaxed a rule.</aside>
+</section>
+
+<section class="scene" id="compliance" data-name="Continuous compliance">
+  <p class="eyebrow">Part 3 · Continuous compliance</p>
+  <h2>Controls, checked on every build</h2>
+  <div class="kv" id="comp-kv"></div>
+  <div class="grid2">
+    <div class="list" id="comp-list"></div>
+    <div class="panel stack" id="comp-detail"></div>
+  </div>
+  <p class="hint">Illustrative mapping to OWASP Top 10:2021, NIST SSDF 1.1 and ISO/IEC 27001:2022. A pass means no contradicting evidence in this build. It is not a certificate.</p>
+  <aside>Click a control to see the evidence the pipeline holds for it. Then switch to "Fixed app" and watch every control pass. Compliance becomes a by-product of shipping: each build leaves a dated record of what was checked and decided. Local context: CERT-In's 2022 directions and the DPDP Act 2023 both push organisations towards evidence that is always current.</aside>
+</section>
+
+<section class="scene" id="humans" data-name="What we automate">
+  <p class="eyebrow">Part 3 · Continuous compliance</p>
+  <h2>Automate the checking, not the production release</h2>
+  <div class="grid2">
+    <div class="panel stack">
+      <h3>Runs without a person</h3>
+      <p class="muted">Scanning every change. Re-checking when a new vulnerability is published. Ranking findings and drafting fixes. Recording control evidence. Deploying to a test environment.</p>
+    </div>
+    <div class="panel stack">
+      <h3>Waits for a person</h3>
+      <p class="muted">Releasing to production. Accepting any code or dependency change. Relaxing the policy. Each has a named approver, and the approval is itself compliance evidence.</p>
+    </div>
+  </div>
+  <div class="code"><span class="dim"># new vulnerability or threat, after release</span>
+Amazon Inspector / GuardDuty finding  →  EventBridge  →  Lambda  →  email to a person</div>
+  <p class="lead">A new vulnerability should reach the right person in minutes, with the evidence attached. It should not rewrite production on its own.</p>
+  <aside>Expect the question "should AI deploy to production?". The answer here is no. Automation makes the decision fast and well-informed; a person still makes it. An approval step with a recorded approver is a change-management control in its own right.</aside>
+</section>
+
+<section class="scene" id="classroom" data-name="For your classroom">
+  <p class="eyebrow">For your classroom</p>
+  <h2>Labs and open questions from this one project</h2>
+  <span class="seg" role="group" aria-label="Labs or research" id="cls-tabs"></span>
+  <div class="grid2" id="cls-body"></div>
+  <aside>The project is plain Python and free tools, so it fits a lab session. Labs 1 to 3 need no API key. Switch to the research tab for project and thesis ideas. Ask which course they would place it in.</aside>
+</section>
+
+<section class="scene center" id="close" data-name="Takeaways">
+  <p class="eyebrow">Takeaways</p>
+  <h2>Three things to remember</h2>
+  <div class="stack">
+    <p class="lead"><b class="mono hi">1</b> AI shortens the list. It does not make the release decision.</p>
+    <p class="lead"><b class="mono hi">2</b> Every model in a pipeline needs guardrails and a fallback.</p>
+    <p class="lead"><b class="mono hi">3</b> Compliance evidence should come out of every build, automatically.</p>
+  </div>
+  <h1>Questions?</h1>
+  <p class="muted">Himanshu Bhardwaj · [Your email] · github.com/himanshubhardwaj87/ai-devsecops-fdp</p>
+  <aside>One sentence per part of the talk. If they remember only one, make it the first. Likely questions: which model and what it costs; can this run without sending code to a cloud service; false positives on real traffic; how to start with no CI system (the single command runs on a laptop).</aside>
+</section>
+
+</main>
+<div class="notes" id="notes" hidden></div>
+
+<script type="application/json" id="data">{"runs":{"app":{"target":"app","generated_at":"2026-11-17 04:47","findings":[{"id":"SECRET-c674e7","tool":"secret-scan","category":"secret","rule_id":"SEC003","title":"Hard-coded credential","severity":"CRITICAL","file":"app/app.py","line":18,"detail":"Matched value shop********************* (redacted)","cwe":"CWE-798"},{"id":"SECRET-b85589","tool":"secret-scan","category":"secret","rule_id":"SEC001","title":"AWS access key id","severity":"CRITICAL","file":"app/app.py","line":19,"detail":"Matched value AKIA**************** (redacted)","cwe":"CWE-798"},{"id":"SECRET-5ec96f","tool":"secret-scan","category":"secret","rule_id":"SEC003","title":"Hard-coded credential","severity":"CRITICAL","file":"app/app.py","line":20,"detail":"Matched value Sup3**************** (redacted)","cwe":"CWE-798"},{"id":"SAST-fee9e6","tool":"bandit","category":"sast","rule_id":"B403","title":"Consider possible security implications associated with pickle module","severity":"LOW","file":"app/app.py","line":8,"detail":"blacklist: Consider possible security implications associated with pickle module.","cwe":"CWE-502"},{"id":"SAST-3b3e53","tool":"bandit","category":"sast","rule_id":"B404","title":"Consider possible security implications associated with the subprocess module","severity":"LOW","file":"app/app.py","line":10,"detail":"blacklist: Consider possible security implications associated with the subprocess module.","cwe":"CWE-78"},{"id":"SAST-dd96ee","tool":"bandit","category":"sast","rule_id":"B324","title":"Use of weak MD5 hash for security","severity":"HIGH","file":"app/app.py","line":34,"detail":"hashlib: Use of weak MD5 hash for security. Consider usedforsecurity=False","cwe":"CWE-327"},{"id":"SAST-3c9cfb","tool":"bandit","category":"sast","rule_id":"B608","title":"Possible SQL injection vector through string-based query construction","severity":"MEDIUM","file":"app/app.py","line":36,"detail":"hardcoded_sql_expressions: Possible SQL injection vector through string-based query construction.","cwe":"CWE-89"},{"id":"SAST-d98951","tool":"bandit","category":"sast","rule_id":"B602","title":"subprocess call with shell=True identified, security issue","severity":"HIGH","file":"app/app.py","line":45,"detail":"subprocess_popen_with_shell_equals_true: subprocess call with shell=True identified, security issue.","cwe":"CWE-78"},{"id":"SAST-5b51f5","tool":"bandit","category":"sast","rule_id":"B301","title":"Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue","severity":"MEDIUM","file":"app/app.py","line":52,"detail":"blacklist: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.","cwe":"CWE-502"},{"id":"SAST-004247","tool":"bandit","category":"sast","rule_id":"B506","title":"Use of unsafe yaml load","severity":"MEDIUM","file":"app/app.py","line":59,"detail":"yaml_load: Use of unsafe yaml load. Allows instantiation of arbitrary objects. Consider yaml.safe_load().","cwe":"CWE-20"},{"id":"SAST-954035","tool":"bandit","category":"sast","rule_id":"B201","title":"A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code","severity":"HIGH","file":"app/app.py","line":65,"detail":"flask_debug_true: A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.","cwe":"CWE-94"},{"id":"SAST-c536ca","tool":"bandit","category":"sast","rule_id":"B104","title":"Possible binding to all interfaces","severity":"MEDIUM","file":"app/app.py","line":65,"detail":"hardcoded_bind_all_interfaces: Possible binding to all interfaces.","cwe":"CWE-605"},{"id":"SCA-d5c909","tool":"amazon-inspector","category":"sca","rule_id":"SCA-flask","title":"flask 2.0.1: 2 known vulnerabilities","severity":"HIGH","file":"app/requirements.txt","line":0,"detail":"Advisories: CVE-2023-30861, CVE-2026-27205. Upgrade to a release that fixes all of them.","cwe":"CWE-1395"},{"id":"SCA-6f4b02","tool":"amazon-inspector","category":"sca","rule_id":"SCA-jinja2","title":"jinja2 2.11.2: 5 known vulnerabilities","severity":"HIGH","file":"app/requirements.txt","line":0,"detail":"Advisories: CVE-2020-28493, CVE-2024-22195, CVE-2024-34064, CVE-2024-56326, CVE-2025-27516. Upgrade to a release that fixes all of them.","cwe":"CWE-1395"},{"id":"SCA-35cf15","tool":"amazon-inspector","category":"sca","rule_id":"SCA-pyyaml","title":"pyyaml 5.3.1: 1 known vulnerability","severity":"CRITICAL","file":"app/requirements.txt","line":0,"detail":"Advisories: CVE-2020-14343. Upgrade to a release that fixes all of them.","cwe":"CWE-1395"},{"id":"SCA-6889d2","tool":"amazon-inspector","category":"sca","rule_id":"SCA-requests","title":"requests 2.25.1: 4 known vulnerabilities","severity":"MEDIUM","file":"app/requirements.txt","line":0,"detail":"Advisories: CVE-2023-32681, CVE-2024-35195, CVE-2024-47081, CVE-2026-25645. Upgrade to a release that fixes all of them.","cwe":"CWE-1395"},{"id":"SCA-37a436","tool":"amazon-inspector","category":"sca","rule_id":"SCA-werkzeug","title":"werkzeug 2.0.1: 11 known vulnerabilities","severity":"CRITICAL","file":"app/requirements.txt","line":0,"detail":"Advisories: CVE-2022-29361, CVE-2023-23934, CVE-2023-25577, CVE-2023-46136, CVE-2024-34069 and 6 more. Upgrade to a release that fixes all of them.","cwe":"CWE-1395"},{"id":"IAC-281af2","tool":"iac-policy","category":"iac","rule_id":"IAC001","title":"Base image is not pinned","severity":"MEDIUM","file":"app/Dockerfile","line":1,"detail":"'FROM python:latest' pulls a moving tag; builds are not reproducible.","cwe":"CWE-1357"},{"id":"IAC-30626d","tool":"iac-policy","category":"iac","rule_id":"IAC002","title":"Remote file added without integrity check","severity":"HIGH","file":"app/Dockerfile","line":2,"detail":"ADD from a URL downloads unverified content into the image.","cwe":"CWE-494"},{"id":"IAC-7a704f","tool":"iac-policy","category":"iac","rule_id":"IAC003","title":"Container runs as root","severity":"HIGH","file":"app/Dockerfile","line":0,"detail":"No USER instruction; the process keeps root inside the container.","cwe":"CWE-250"},{"id":"IAC-80452a","tool":"iac-policy","category":"iac","rule_id":"IAC010","title":"Pod shares the host network","severity":"HIGH","file":"app/k8s/deployment.yaml","line":0,"detail":"hostNetwork: true removes network isolation from the node.","cwe":"CWE-668"},{"id":"IAC-c56a0f","tool":"iac-policy","category":"iac","rule_id":"IAC011","title":"Privileged container","severity":"CRITICAL","file":"app/k8s/deployment.yaml","line":0,"detail":"Container 'shoplite' is privileged: a compromise is a node compromise.","cwe":"CWE-250"},{"id":"IAC-2eb392","tool":"iac-policy","category":"iac","rule_id":"IAC012","title":"runAsNonRoot is not enforced","severity":"MEDIUM","file":"app/k8s/deployment.yaml","line":0,"detail":"Container 'shoplite' may start as uid 0.","cwe":"CWE-250"},{"id":"IAC-e9978f","tool":"iac-policy","category":"iac","rule_id":"IAC013","title":"No resource limits","severity":"LOW","file":"app/k8s/deployment.yaml","line":0,"detail":"Container 'shoplite' can exhaust node CPU and memory.","cwe":"CWE-770"}],"triage":{"source":"claude via bedrock (claude-opus-5-5)","executive_summary":"This release must not ship: the service has several remotely exploitable remote-code-execution paths on public routes (shell command injection in /ping, pickle deserialization in /cart/restore, unsafe YAML in /config, and the Werkzeug debug console bound to 0.0.0.0), plus SQL injection on login and AWS/database credentials committed to source. The Kubernetes deployment runs the container privileged on the host network, so any one of those code flaws becomes a full node compromise, and outdated Flask/Werkzeug/Jinja2/PyYAML/requests packages add known CVEs. Fixing the P0/P1 items (rotating the leaked credentials, patching the five dangerous routes, disabling debug, upgrading dependencies, and hardening the deployment manifest) is roughly a few days of focused work, after which the remaining items can be scheduled.","items":[{"finding_id":"SECRET-c674e7","priority":"P0","exploitability":"Anyone with repository read access (or the built image, since COPY . /srv ships source) obtains the credential.","rationale":"Hard-coded credential committed to source control. The comment says the values are fake, but that cannot be verified, and the pattern alongside an AKIA key indicates a real secret. Treat it as live until confirmed otherwise.","fix":"Revoke and rotate the credential now. Remove it from app.py and load it from an environment variable or secret manager (os.environ['SHOP_API_KEY'] via a Kubernetes Secret). Purge it from git history with git filter-repo or BFG. Add a pre-commit secret scan.","likely_false_positive":false},{"finding_id":"SECRET-b85589","priority":"P0","exploitability":"An AWS key ID plus a nearby secret gives direct cloud API access to anyone who reads the repo or image.","rationale":"The AKIA prefix is a genuine long-term IAM access key format. A leaked AWS key is a live credential exposure regardless of the 'fake values' comment.","fix":"Deactivate and delete the IAM access key in AWS IAM and review CloudTrail for misuse. Replace it with an IAM role (IRSA on EKS) so no static keys are needed. Remove it from the code and git history.","likely_false_positive":false},{"finding_id":"SECRET-5ec96f","priority":"P0","exploitability":"A hard-coded password (likely the AWS secret or DB/admin password) is readable from the repo and image.","rationale":"This is a live credential exposure under the same conditions as the other two secrets.","fix":"Rotate the password or secret key and remove it from source. Inject it at runtime from a Kubernetes Secret or secret manager, purge it from git history, and add a .dockerignore so the source and .git are not baked into images unnecessarily.","likely_false_positive":false},{"finding_id":"SAST-fee9e6","priority":"P3","exploitability":"An import alone is not exploitable; the real risk is tracked in SAST-5b51f5.","rationale":"This is an informational blacklist hit on the import statement and duplicates the pickle.loads finding.","fix":"Remove 'import pickle' once /cart/restore is migrated to JSON.","likely_false_positive":true},{"finding_id":"SAST-3b3e53","priority":"P3","exploitability":"An import alone is not exploitable; the real risk is tracked in SAST-d98951.","rationale":"This is an informational import warning that duplicates the shell=True finding.","fix":"Keep subprocess only if needed, using list arguments without shell=True, or remove it entirely if /ping is reimplemented.","likely_false_positive":true},{"finding_id":"SAST-dd96ee","priority":"P1","exploitability":"This requires a database leak first (for example via the login SQL injection). Unsalted MD5 hashes can then be cracked almost instantly.","rationale":"MD5 is used as the password hash on the login route. It is not directly remotely exploitable, but combined with SQL injection the credential store is effectively plaintext.","fix":"Hash passwords with argon2-cffi or bcrypt (or werkzeug.security.generate_password_hash/check_password_hash). Verify with a constant-time check and rehash existing users on their next login.","likely_false_positive":false},{"finding_id":"SAST-3c9cfb","priority":"P0","exploitability":"Unauthenticated POST /login with username=' OR 1=1-- bypasses authentication; UNION-based payloads can also dump the users table.","rationale":"Untrusted form input is interpolated directly into SQL on an exposed login route. The scanner rated this MEDIUM; it is raised because it is a trivially exploitable authentication bypass.","fix":"Use parameterized queries: get_db().execute('SELECT id, pw FROM users WHERE name = ?', (username,)), then verify the password hash in Python.","likely_false_positive":false},{"finding_id":"SAST-d98951","priority":"P0","exploitability":"GET /ping?host=127.0.0.1;id executes arbitrary shell commands as root, and the container is privileged on the host network.","rationale":"Unauthenticated request input reaches a shell. This is direct remote code execution, and the deployment settings amplify it to node compromise.","fix":"Validate host with ipaddress.ip_address() or a strict hostname regex. Call subprocess.run(['ping', '-c', '1', host], shell=False, timeout=5, capture_output=True). Note that -n is the Windows flag and Linux uses -c. Better still, remove the endpoint.","likely_false_positive":false},{"finding_id":"SAST-5b51f5","priority":"P0","exploitability":"A POST of a crafted pickle payload with __reduce__ to /cart/restore gives remote code execution with no authentication.","rationale":"pickle.loads runs on the raw request body of an exposed route. The scanner rated this MEDIUM; it is raised because it is trivial RCE.","fix":"Replace it with cart = request.get_json(force=True) and validate the schema (a list of {sku, qty}). If integrity of client-held state is needed, sign it with itsdangerous instead of using pickle.","likely_false_positive":false},{"finding_id":"SAST-004247","priority":"P0","exploitability":"A POST of YAML containing !!python/object/apply:os.system to /config executes commands, worsened by pyyaml 5.3.1 (CVE-2020-14343).","rationale":"yaml.Loader on the untrusted request body of an exposed route allows arbitrary object construction, which is RCE. The scanner rated this MEDIUM; it is raised for that reason.","fix":"Use yaml.safe_load(request.data), and check that the result is a dict before calling list(config). Also upgrade PyYAML (SCA-35cf15).","likely_false_positive":false},{"finding_id":"SAST-954035","priority":"P0","exploitability":"If the app is started via 'python app.py' (the Dockerfile has no visible CMD to confirm otherwise), the Werkzeug debugger is reachable on 0.0.0.0:5000. Any exception gives an interactive Python console, and the PIN protection is weak in older Werkzeug versions.","rationale":"An exposed debug console is RCE. Combined with the bind-all setting and hostNetwork, it is reachable from the node network.","fix":"Remove debug=True and drive it from config (debug=os.environ.get('FLASK_DEBUG')=='1', default off). Run in production under gunicorn (gunicorn -b 0.0.0.0:5000 app:app) instead of app.run.","likely_false_positive":false},{"finding_id":"SAST-c536ca","priority":"P2","exploitability":"Binding to 0.0.0.0 is normal and necessary inside a container. The danger comes from the combination with debug=True and hostNetwork.","rationale":"This is expected for containerized services. It is retained as P2 only because, with hostNetwork: true, it exposes the port on the node's interfaces.","fix":"Keep 0.0.0.0 inside the container under gunicorn, but remove hostNetwork and expose the app only via a Service/Ingress. For local dev runs, bind to 127.0.0.1.","likely_false_positive":false},{"finding_id":"SCA-d5c909","priority":"P1","exploitability":"CVE-2023-30861 can leak session cookies through caching proxies under specific conditions. It is limited in this app, which does not visibly use sessions.","rationale":"This is an outdated framework with known advisories. It is low direct exploitability here but is a cheap fix, and it should move together with the Werkzeug/Jinja2 upgrade.","fix":"Pin flask>=3.1.x (the latest patched release) in requirements.txt, together with matching werkzeug and jinja2 versions. Run the test suite afterwards.","likely_false_positive":false},{"finding_id":"SCA-6f4b02","priority":"P2","exploitability":"The CVEs are ReDoS, xmlattr injection and sandbox escapes. No template rendering of user input or sandbox use is visible in this app.","rationale":"The vulnerable code paths do not appear to be reached. It is still an outdated transitive dependency.","fix":"Pin jinja2>=3.1.6 alongside the Flask upgrade.","likely_false_positive":false},{"finding_id":"SCA-35cf15","priority":"P0","exploitability":"CVE-2020-14343 gives arbitrary code execution via full_load/FullLoader. Untrusted YAML is parsed on /config.","rationale":"The vulnerable library is directly reachable from an exposed route with attacker-controlled input.","fix":"Pin PyYAML>=6.0.2 and switch to yaml.safe_load (SAST-004247).","likely_false_positive":false},{"finding_id":"SCA-6889d2","priority":"P2","exploitability":"The CVEs cover proxy auth leaks, cert verification persistence and .netrc credential leaks. requests is not used in the shown code paths.","rationale":"There is no visible reachable usage, so impact is limited. It is an upgrade-hygiene item.","fix":"Pin requests>=2.32.4, or later as needed to cover CVE-2026-25645, or remove it if unused.","likely_false_positive":false},{"finding_id":"SCA-37a436","priority":"P1","exploitability":"This is the server actually handling requests via app.run. CVE-2024-34069 is debugger RCE, and others cover multipart DoS and cookie issues; several are reachable while debug is on.","rationale":"There are many known vulnerabilities in the request-handling layer, including one in the debugger that is exposed here. It drops to routine once debug is off, but it blocks release as a cheap, high-value upgrade.","fix":"Pin werkzeug>=3.1.x (latest patch) together with flask 3.1.x. Serve via gunicorn rather than the Werkzeug dev server.","likely_false_positive":false},{"finding_id":"IAC-281af2","priority":"P2","exploitability":"This is not directly exploitable; it is a supply-chain and reproducibility risk.","rationale":"A moving tag can silently change the runtime and pull in untested or compromised layers.","fix":"Use FROM python:3.12-slim@sha256:<digest> and update it via Dependabot or Renovate.","likely_false_positive":false},{"finding_id":"IAC-30626d","priority":"P1","exploitability":"Whoever controls example.com, or anyone who can tamper with the download in transit, can inject content into the image. Exploitation depends on the script being executed, which is not shown.","rationale":"Unverified remote content enters the build. It is a supply-chain risk with limited direct reach, but trivial to fix.","fix":"Vendor bootstrap.sh into the repo and COPY it. Alternatively, use ADD --checksum=sha256:<hash> https://... (BuildKit), or curl the file and verify it with sha256sum -c before use. Remove the line if the script is unused.","likely_false_positive":false},{"finding_id":"IAC-7a704f","priority":"P1","exploitability":"Any of the RCE flaws runs as root in the container. Combined with privileged mode, this makes container escape trivial.","rationale":"The scanner's severity is justified given the multiple reachable RCE paths.","fix":"Add RUN useradd -r -u 10001 app && chown -R app /srv, then USER 10001 after pip install. Also add a CMD running gunicorn.","likely_false_positive":false},{"finding_id":"IAC-80452a","priority":"P1","exploitability":"After RCE, an attacker can reach node-local services, the kubelet, and cloud metadata. The debug port is also exposed on the node IP.","rationale":"This removes network isolation and amplifies every application flaw.","fix":"Remove hostNetwork: true (or set it to false), expose the app via a ClusterIP Service/Ingress, and add a NetworkPolicy restricting egress, including blocking 169.254.169.254.","likely_false_positive":false},{"finding_id":"IAC-c56a0f","priority":"P0","exploitability":"The /ping or /cart/restore RCE in a privileged pod leads to host device access and trivial node escape, which is cluster compromise.","rationale":"A privileged container combined with confirmed unauthenticated RCE is an immediate path to node takeover.","fix":"Set securityContext: {privileged: false, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}. Enforce this with Pod Security Admission at the 'restricted' level on the namespace.","likely_false_positive":false},{"finding_id":"IAC-2eb392","priority":"P2","exploitability":"This is defence in depth that complements IAC-7a704f.","rationale":"Without enforcement, the image may run as uid 0 even after the Dockerfile is fixed.","fix":"Add securityContext: {runAsNonRoot: true, runAsUser: 10001} to the pod or container spec.","likely_false_positive":false},{"finding_id":"IAC-e9978f","priority":"P3","exploitability":"This is a denial-of-service and noisy-neighbour risk only.","rationale":"The impact is availability only.","fix":"Add resources: {requests: {cpu: 100m, memory: 128Mi}, limits: {cpu: 500m, memory: 256Mi}}, tuned to observed usage.","likely_false_positive":false}]},"monitoring":{"log_lines":3264,"clients":123,"flagged":4,"injected_attackers":3,"attackers_caught":3,"false_alarms":1,"anomalies":[{"ip":"203.0.113.7","score":0.854,"is_injected_attack":true,"attack_type":"credential stuffing","reasons":["failed_logins = 393.00 (typical 0.00)","distinct_paths = 1.00 (typical 6.00)","night_share = 1.00 (typical 0.00)"]},{"ip":"198.51.100.23","score":0.818,"is_injected_attack":true,"attack_type":"injection probing","reasons":["distinct_paths = 180.00 (typical 6.00)","night_share = 0.27 (typical 0.00)","requests = 180.00 (typical 22.00)"]},{"ip":"192.0.2.99","score":0.806,"is_injected_attack":true,"attack_type":"data exfiltration","reasons":["distinct_paths = 1.00 (typical 6.00)","night_share = 1.00 (typical 0.00)","avg_response_kb = 9039.96 (typical 18.08)"]},{"ip":"10.0.0.104","score":0.594,"is_injected_attack":false,"attack_type":"none (normal client)","reasons":["distinct_paths = 3.00 (typical 6.00)","failed_logins = 1.00 (typical 0.00)"]}]},"controls":[{"framework":"OWASP Top 10:2021","control_id":"A03","name":"Injection","status":"FAIL","evidence":"2 blocking finding(s): SAST-3c9cfb, SAST-d98951"},{"framework":"OWASP Top 10:2021","control_id":"A02","name":"Cryptographic Failures","status":"FAIL","evidence":"1 blocking finding(s): SAST-dd96ee"},{"framework":"OWASP Top 10:2021","control_id":"A05","name":"Security Misconfiguration","status":"FAIL","evidence":"5 blocking finding(s): SAST-954035, IAC-30626d, IAC-7a704f, IAC-80452a"},{"framework":"OWASP Top 10:2021","control_id":"A06","name":"Vulnerable and Outdated Components","status":"FAIL","evidence":"3 blocking finding(s): SCA-d5c909, SCA-35cf15, SCA-37a436"},{"framework":"OWASP Top 10:2021","control_id":"A07","name":"Identification and Authentication Failures","status":"FAIL","evidence":"3 blocking finding(s): SECRET-c674e7, SECRET-b85589, SECRET-5ec96f"},{"framework":"OWASP Top 10:2021","control_id":"A08","name":"Software and Data Integrity Failures","status":"FAIL","evidence":"2 blocking finding(s): SAST-5b51f5, IAC-30626d"},{"framework":"OWASP Top 10:2021","control_id":"A09","name":"Security Logging and Monitoring Failures","status":"PASS","evidence":"Anomaly detection ran on runtime logs in this pipeline run."},{"framework":"NIST SSDF 1.1","control_id":"PW.4","name":"Reuse existing, well-secured software","status":"FAIL","evidence":"3 blocking finding(s): SCA-d5c909, SCA-35cf15, SCA-37a436"},{"framework":"NIST SSDF 1.1","control_id":"PW.7","name":"Review and analyse code to identify vulnerabilities","status":"FAIL","evidence":"9 blocking finding(s): SECRET-c674e7, SECRET-b85589, SECRET-5ec96f, SAST-dd96ee"},{"framework":"NIST SSDF 1.1","control_id":"PW.9","name":"Configure software to have secure settings by default","status":"FAIL","evidence":"4 blocking finding(s): IAC-30626d, IAC-7a704f, IAC-80452a, IAC-c56a0f"},{"framework":"NIST SSDF 1.1","control_id":"RV.1","name":"Identify and confirm vulnerabilities on an ongoing basis","status":"FAIL","evidence":"9 blocking finding(s): SAST-dd96ee, SAST-3c9cfb, SAST-d98951, SAST-5b51f5"},{"framework":"ISO/IEC 27001:2022","control_id":"A.5.17","name":"Authentication information","status":"FAIL","evidence":"3 blocking finding(s): SECRET-c674e7, SECRET-b85589, SECRET-5ec96f"},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.8","name":"Management of technical vulnerabilities","status":"FAIL","evidence":"3 blocking finding(s): SCA-d5c909, SCA-35cf15, SCA-37a436"},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.9","name":"Configuration management","status":"FAIL","evidence":"4 blocking finding(s): IAC-30626d, IAC-7a704f, IAC-80452a, IAC-c56a0f"},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.16","name":"Monitoring activities","status":"PASS","evidence":"Anomaly detection ran on runtime logs in this pipeline run."},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.24","name":"Use of cryptography","status":"FAIL","evidence":"1 blocking finding(s): SAST-dd96ee"},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.28","name":"Secure coding","status":"FAIL","evidence":"6 blocking finding(s): SAST-dd96ee, SAST-3c9cfb, SAST-d98951, SAST-5b51f5"}],"gate":{"passed":false,"violations":["10 P0 finding(s); policy allows 0","6 P1 finding(s); policy allows 0","3 hard-coded secret(s); policy allows none","15 compliance control(s) failing; policy allows 0"],"priority_counts":{"P0":10,"P1":6,"P2":5,"P3":3}},"notes":{"sca":"Amazon Inspector vulnerability database","triage":"live Claude call via bedrock (response saved for replay)"}},"app_secure":{"target":"app_secure","generated_at":"2026-11-17 04:49","findings":[],"triage":{"source":"none","executive_summary":"No findings to triage.","items":[]},"monitoring":{"log_lines":3264,"clients":123,"flagged":4,"injected_attackers":3,"attackers_caught":3,"false_alarms":1,"anomalies":[{"ip":"203.0.113.7","score":0.854,"is_injected_attack":true,"attack_type":"credential stuffing","reasons":["failed_logins = 393.00 (typical 0.00)","distinct_paths = 1.00 (typical 6.00)","night_share = 1.00 (typical 0.00)"]},{"ip":"198.51.100.23","score":0.818,"is_injected_attack":true,"attack_type":"injection probing","reasons":["distinct_paths = 180.00 (typical 6.00)","night_share = 0.27 (typical 0.00)","requests = 180.00 (typical 22.00)"]},{"ip":"192.0.2.99","score":0.806,"is_injected_attack":true,"attack_type":"data exfiltration","reasons":["distinct_paths = 1.00 (typical 6.00)","night_share = 1.00 (typical 0.00)","avg_response_kb = 9039.96 (typical 18.08)"]},{"ip":"10.0.0.104","score":0.594,"is_injected_attack":false,"attack_type":"none (normal client)","reasons":["distinct_paths = 3.00 (typical 6.00)","failed_logins = 1.00 (typical 0.00)"]}]},"controls":[{"framework":"OWASP Top 10:2021","control_id":"A03","name":"Injection","status":"PASS","evidence":"No related findings in this run."},{"framework":"OWASP Top 10:2021","control_id":"A02","name":"Cryptographic Failures","status":"PASS","evidence":"No related findings in this run."},{"framework":"OWASP Top 10:2021","control_id":"A05","name":"Security Misconfiguration","status":"PASS","evidence":"No related findings in this run."},{"framework":"OWASP Top 10:2021","control_id":"A06","name":"Vulnerable and Outdated Components","status":"PASS","evidence":"No related findings in this run."},{"framework":"OWASP Top 10:2021","control_id":"A07","name":"Identification and Authentication Failures","status":"PASS","evidence":"No related findings in this run."},{"framework":"OWASP Top 10:2021","control_id":"A08","name":"Software and Data Integrity Failures","status":"PASS","evidence":"No related findings in this run."},{"framework":"OWASP Top 10:2021","control_id":"A09","name":"Security Logging and Monitoring Failures","status":"PASS","evidence":"Anomaly detection ran on runtime logs in this pipeline run."},{"framework":"NIST SSDF 1.1","control_id":"PW.4","name":"Reuse existing, well-secured software","status":"PASS","evidence":"No related findings in this run."},{"framework":"NIST SSDF 1.1","control_id":"PW.7","name":"Review and analyse code to identify vulnerabilities","status":"PASS","evidence":"No related findings in this run."},{"framework":"NIST SSDF 1.1","control_id":"PW.9","name":"Configure software to have secure settings by default","status":"PASS","evidence":"No related findings in this run."},{"framework":"NIST SSDF 1.1","control_id":"RV.1","name":"Identify and confirm vulnerabilities on an ongoing basis","status":"PASS","evidence":"No related findings in this run."},{"framework":"ISO/IEC 27001:2022","control_id":"A.5.17","name":"Authentication information","status":"PASS","evidence":"No related findings in this run."},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.8","name":"Management of technical vulnerabilities","status":"PASS","evidence":"No related findings in this run."},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.9","name":"Configuration management","status":"PASS","evidence":"No related findings in this run."},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.16","name":"Monitoring activities","status":"PASS","evidence":"Anomaly detection ran on runtime logs in this pipeline run."},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.24","name":"Use of cryptography","status":"PASS","evidence":"No related findings in this run."},{"framework":"ISO/IEC 27001:2022","control_id":"A.8.28","name":"Secure coding","status":"PASS","evidence":"No related findings in this run."}],"gate":{"passed":true,"violations":[],"priority_counts":{"P0":0,"P1":0,"P2":0,"P3":0}},"notes":{"sca":"Amazon Inspector vulnerability database","triage":"nothing to triage"}}},"clients":[{"ip":"10.0.0.1","f":[10.0,0.0,5.0,0.0,18.623,0.0],"score":0.3726,"attack":""},{"ip":"10.0.0.10","f":[23.0,0.0,6.0,0.0,18.693,0.0],"score":0.3425,"attack":""},{"ip":"10.0.0.100","f":[8.0,0.0,5.0,0.0,20.325,0.0],"score":0.399,"attack":""},{"ip":"10.0.0.101","f":[13.0,0.077,5.0,0.0,19.11,0.0],"score":0.3844,"attack":""},{"ip":"10.0.0.102","f":[8.0,0.0,6.0,0.0,21.078,0.0],"score":0.4128,"attack":""},{"ip":"10.0.0.103","f":[28.0,0.036,6.0,0.0,17.097,0.0],"score":0.3489,"attack":""},{"ip":"10.0.0.104","f":[8.0,0.125,3.0,1.0,19.316,0.0],"score":0.5938,"attack":""},{"ip":"10.0.0.105","f":[33.0,0.03,5.0,0.0,17.827,0.0],"score":0.4005,"attack":""},{"ip":"10.0.0.106","f":[34.0,0.059,6.0,0.0,18.572,0.0],"score":0.3598,"attack":""},{"ip":"10.0.0.107","f":[14.0,0.0,5.0,0.0,21.383,0.0],"score":0.405,"attack":""},{"ip":"10.0.0.108","f":[11.0,0.0,4.0,0.0,15.646,0.0],"score":0.4429,"attack":""},{"ip":"10.0.0.109","f":[8.0,0.0,5.0,0.0,19.517,0.125],"score":0.5139,"attack":""},{"ip":"10.0.0.11","f":[31.0,0.032,6.0,0.0,15.678,0.0],"score":0.3787,"attack":""},{"ip":"10.0.0.110","f":[10.0,0.0,5.0,0.0,17.344,0.0],"score":0.3803,"attack":""},{"ip":"10.0.0.111","f":[13.0,0.077,6.0,0.0,19.059,0.0],"score":0.3759,"attack":""},{"ip":"10.0.0.112","f":[16.0,0.062,5.0,0.0,16.633,0.0],"score":0.3888,"attack":""},{"ip":"10.0.0.113","f":[9.0,0.222,6.0,0.0,16.808,0.111],"score":0.5613,"attack":""},{"ip":"10.0.0.114","f":[11.0,0.091,4.0,0.0,14.608,0.0],"score":0.4677,"attack":""},{"ip":"10.0.0.115","f":[29.0,0.034,6.0,0.0,19.413,0.0],"score":0.3522,"attack":""},{"ip":"10.0.0.116","f":[11.0,0.0,5.0,0.0,18.458,0.0],"score":0.37,"attack":""},{"ip":"10.0.0.117","f":[32.0,0.062,6.0,0.0,18.713,0.0],"score":0.3581,"attack":""},{"ip":"10.0.0.118","f":[33.0,0.091,6.0,1.0,18.145,0.0],"score":0.462,"attack":""},{"ip":"10.0.0.119","f":[26.0,0.077,6.0,0.0,16.117,0.0],"score":0.3731,"attack":""},{"ip":"10.0.0.12","f":[35.0,0.057,6.0,1.0,18.77,0.029],"score":0.5052,"attack":""},{"ip":"10.0.0.120","f":[20.0,0.05,6.0,0.0,14.645,0.0],"score":0.3892,"attack":""},{"ip":"10.0.0.13","f":[20.0,0.0,6.0,0.0,17.345,0.0],"score":0.347,"attack":""},{"ip":"10.0.0.14","f":[35.0,0.029,6.0,0.0,17.302,0.0],"score":0.3553,"attack":""},{"ip":"10.0.0.15","f":[35.0,0.0,6.0,0.0,18.08,0.0],"score":0.3575,"attack":""},{"ip":"10.0.0.16","f":[16.0,0.062,5.0,0.0,20.495,0.0],"score":0.3984,"attack":""},{"ip":"10.0.0.17","f":[38.0,0.053,6.0,0.0,18.591,0.0],"score":0.3748,"attack":""},{"ip":"10.0.0.18","f":[37.0,0.0,6.0,0.0,18.771,0.054],"score":0.4424,"attack":""},{"ip":"10.0.0.19","f":[24.0,0.0,6.0,0.0,17.518,0.0],"score":0.3428,"attack":""},{"ip":"10.0.0.2","f":[18.0,0.056,6.0,0.0,16.442,0.0],"score":0.3586,"attack":""},{"ip":"10.0.0.20","f":[39.0,0.103,6.0,0.0,17.034,0.0],"score":0.4058,"attack":""},{"ip":"10.0.0.21","f":[11.0,0.0,6.0,0.0,19.599,0.0],"score":0.3696,"attack":""},{"ip":"10.0.0.22","f":[28.0,0.0,6.0,0.0,18.999,0.0],"score":0.3487,"attack":""},{"ip":"10.0.0.23","f":[31.0,0.032,6.0,0.0,16.246,0.0],"score":0.3651,"attack":""},{"ip":"10.0.0.24","f":[12.0,0.083,5.0,1.0,19.004,0.0],"score":0.4989,"attack":""},{"ip":"10.0.0.25","f":[15.0,0.067,5.0,0.0,17.521,0.0],"score":0.3829,"attack":""},{"ip":"10.0.0.26","f":[35.0,0.114,6.0,0.0,17.514,0.0],"score":0.3819,"attack":""},{"ip":"10.0.0.27","f":[11.0,0.091,5.0,0.0,17.096,0.0],"score":0.3907,"attack":""},{"ip":"10.0.0.28","f":[30.0,0.1,6.0,1.0,19.807,0.033],"score":0.5253,"attack":""},{"ip":"10.0.0.29","f":[32.0,0.0,6.0,0.0,15.961,0.0],"score":0.3765,"attack":""},{"ip":"10.0.0.3","f":[11.0,0.0,5.0,0.0,16.129,0.0],"score":0.3878,"attack":""},{"ip":"10.0.0.30","f":[9.0,0.0,3.0,0.0,15.755,0.0],"score":0.5131,"attack":""},{"ip":"10.0.0.31","f":[28.0,0.036,6.0,0.0,17.821,0.0],"score":0.3446,"attack":""},{"ip":"10.0.0.32","f":[32.0,0.0,5.0,0.0,18.617,0.0],"score":0.3892,"attack":""},{"ip":"10.0.0.33","f":[24.0,0.042,6.0,0.0,18.351,0.0],"score":0.3442,"attack":""},{"ip":"10.0.0.34","f":[22.0,0.045,6.0,0.0,17.639,0.0],"score":0.3453,"attack":""},{"ip":"10.0.0.35","f":[28.0,0.036,6.0,0.0,18.782,0.0],"score":0.346,"attack":""},{"ip":"10.0.0.36","f":[12.0,0.0,5.0,0.0,15.23,0.0],"score":0.398,"attack":""},{"ip":"10.0.0.37","f":[16.0,0.062,6.0,0.0,20.08,0.0],"score":0.3686,"attack":""},{"ip":"10.0.0.38","f":[37.0,0.0,6.0,0.0,18.147,0.0],"score":0.3672,"attack":""},{"ip":"10.0.0.39","f":[33.0,0.091,6.0,0.0,17.99,0.0],"score":0.3666,"attack":""},{"ip":"10.0.0.4","f":[23.0,0.087,6.0,1.0,17.134,0.0],"score":0.4698,"attack":""},{"ip":"10.0.0.40","f":[19.0,0.105,6.0,0.0,19.834,0.0],"score":0.3736,"attack":""},{"ip":"10.0.0.41","f":[33.0,0.061,6.0,0.0,17.73,0.0],"score":0.355,"attack":""},{"ip":"10.0.0.42","f":[23.0,0.043,6.0,0.0,19.34,0.0],"score":0.3473,"attack":""},{"ip":"10.0.0.43","f":[28.0,0.0,6.0,0.0,19.081,0.0],"score":0.3486,"attack":""},{"ip":"10.0.0.44","f":[38.0,0.026,6.0,0.0,17.957,0.0],"score":0.3683,"attack":""},{"ip":"10.0.0.45","f":[28.0,0.071,6.0,0.0,16.406,0.0],"score":0.3624,"attack":""},{"ip":"10.0.0.46","f":[27.0,0.0,6.0,0.0,18.698,0.0],"score":0.346,"attack":""},{"ip":"10.0.0.47","f":[22.0,0.045,6.0,0.0,19.214,0.0],"score":0.3474,"attack":""},{"ip":"10.0.0.48","f":[23.0,0.0,6.0,0.0,17.634,0.0],"score":0.3415,"attack":""},{"ip":"10.0.0.49","f":[11.0,0.091,5.0,0.0,17.863,0.0],"score":0.3875,"attack":""},{"ip":"10.0.0.5","f":[17.0,0.0,6.0,0.0,17.232,0.0],"score":0.3513,"attack":""},{"ip":"10.0.0.50","f":[22.0,0.045,6.0,0.0,18.189,0.0],"score":0.3455,"attack":""},{"ip":"10.0.0.51","f":[18.0,0.0,5.0,0.0,19.188,0.0],"score":0.3675,"attack":""},{"ip":"10.0.0.52","f":[12.0,0.25,6.0,0.0,16.208,0.0],"score":0.4786,"attack":""},{"ip":"10.0.0.53","f":[34.0,0.029,6.0,0.0,19.452,0.0],"score":0.3609,"attack":""},{"ip":"10.0.0.54","f":[29.0,0.034,5.0,0.0,19.419,0.0],"score":0.395,"attack":""},{"ip":"10.0.0.55","f":[22.0,0.0,6.0,0.0,18.507,0.0],"score":0.3443,"attack":""},{"ip":"10.0.0.56","f":[9.0,0.111,5.0,0.0,16.752,0.0],"score":0.4097,"attack":""},{"ip":"10.0.0.57","f":[8.0,0.125,6.0,0.0,15.332,0.0],"score":0.4202,"attack":""},{"ip":"10.0.0.58","f":[18.0,0.056,6.0,0.0,16.661,0.0],"score":0.3562,"attack":""},{"ip":"10.0.0.59","f":[20.0,0.0,6.0,0.0,17.139,0.0],"score":0.3479,"attack":""},{"ip":"10.0.0.6","f":[13.0,0.0,5.0,0.0,19.942,0.0],"score":0.3746,"attack":""},{"ip":"10.0.0.60","f":[19.0,0.105,6.0,0.0,15.822,0.0],"score":0.3818,"attack":""},{"ip":"10.0.0.61","f":[9.0,0.111,5.0,0.0,18.618,0.0],"score":0.4058,"attack":""},{"ip":"10.0.0.62","f":[12.0,0.0,4.0,0.0,19.978,0.0],"score":0.4366,"attack":""},{"ip":"10.0.0.63","f":[30.0,0.067,6.0,0.0,17.31,0.0],"score":0.3566,"attack":""},{"ip":"10.0.0.64","f":[14.0,0.071,5.0,0.0,19.66,0.0],"score":0.3857,"attack":""},{"ip":"10.0.0.65","f":[39.0,0.0,6.0,0.0,19.479,0.026],"score":0.4307,"attack":""},{"ip":"10.0.0.66","f":[33.0,0.03,6.0,0.0,18.152,0.0],"score":0.3492,"attack":""},{"ip":"10.0.0.67","f":[16.0,0.0,6.0,0.0,17.743,0.0],"score":0.3504,"attack":""},{"ip":"10.0.0.68","f":[19.0,0.0,5.0,0.0,18.454,0.0],"score":0.3686,"attack":""},{"ip":"10.0.0.69","f":[36.0,0.056,6.0,1.0,17.623,0.0],"score":0.4587,"attack":""},{"ip":"10.0.0.7","f":[17.0,0.0,6.0,0.0,20.029,0.0],"score":0.3596,"attack":""},{"ip":"10.0.0.70","f":[20.0,0.0,6.0,0.0,16.618,0.0],"score":0.3527,"attack":""},{"ip":"10.0.0.71","f":[22.0,0.0,6.0,0.0,19.199,0.045],"score":0.4038,"attack":""},{"ip":"10.0.0.72","f":[24.0,0.042,6.0,0.0,19.297,0.0],"score":0.3483,"attack":""},{"ip":"10.0.0.73","f":[29.0,0.138,6.0,0.0,21.041,0.0],"score":0.4301,"attack":""},{"ip":"10.0.0.74","f":[27.0,0.037,6.0,0.0,20.173,0.037],"score":0.4078,"attack":""},{"ip":"10.0.0.75","f":[32.0,0.062,6.0,0.0,17.818,0.0],"score":0.3545,"attack":""},{"ip":"10.0.0.76","f":[19.0,0.0,6.0,0.0,17.005,0.0],"score":0.3506,"attack":""},{"ip":"10.0.0.77","f":[22.0,0.0,6.0,0.0,18.186,0.0],"score":0.3434,"attack":""},{"ip":"10.0.0.78","f":[37.0,0.054,6.0,1.0,15.645,0.0],"score":0.4947,"attack":""},{"ip":"10.0.0.79","f":[20.0,0.05,6.0,0.0,20.322,0.0],"score":0.3656,"attack":""},{"ip":"10.0.0.8","f":[28.0,0.0,6.0,0.0,16.605,0.0],"score":0.3549,"attack":""},{"ip":"10.0.0.80","f":[36.0,0.028,6.0,0.0,17.448,0.0],"score":0.3589,"attack":""},{"ip":"10.0.0.81","f":[24.0,0.0,6.0,0.0,16.784,0.0],"score":0.3492,"attack":""},{"ip":"10.0.0.82","f":[29.0,0.069,6.0,0.0,17.627,0.0],"score":0.3536,"attack":""},{"ip":"10.0.0.83","f":[16.0,0.125,6.0,0.0,15.346,0.0],"score":0.3995,"attack":""},{"ip":"10.0.0.84","f":[39.0,0.026,6.0,1.0,17.154,0.0],"score":0.4822,"attack":""},{"ip":"10.0.0.85","f":[16.0,0.0,6.0,0.0,18.846,0.0],"score":0.3514,"attack":""},{"ip":"10.0.0.86","f":[11.0,0.091,6.0,0.0,20.052,0.0],"score":0.3863,"attack":""},{"ip":"10.0.0.87","f":[29.0,0.0,5.0,0.0,18.915,0.0],"score":0.3846,"attack":""},{"ip":"10.0.0.88","f":[19.0,0.158,6.0,0.0,18.237,0.0],"score":0.4027,"attack":""},{"ip":"10.0.0.89","f":[11.0,0.182,6.0,1.0,16.026,0.0],"score":0.5459,"attack":""},{"ip":"10.0.0.9","f":[18.0,0.0,6.0,0.0,18.719,0.0],"score":0.3468,"attack":""},{"ip":"10.0.0.90","f":[8.0,0.125,4.0,0.0,14.63,0.0],"score":0.4895,"attack":""},{"ip":"10.0.0.91","f":[37.0,0.108,6.0,0.0,17.091,0.027],"score":0.4365,"attack":""},{"ip":"10.0.0.92","f":[14.0,0.0,5.0,0.0,14.931,0.0],"score":0.4091,"attack":""},{"ip":"10.0.0.93","f":[28.0,0.036,6.0,0.0,20.678,0.0],"score":0.371,"attack":""},{"ip":"10.0.0.94","f":[19.0,0.105,5.0,0.0,14.284,0.0],"score":0.4387,"attack":""},{"ip":"10.0.0.95","f":[9.0,0.0,5.0,0.0,19.284,0.0],"score":0.3805,"attack":""},{"ip":"10.0.0.96","f":[38.0,0.053,6.0,1.0,18.078,0.0],"score":0.4617,"attack":""},{"ip":"10.0.0.97","f":[27.0,0.0,6.0,0.0,17.188,0.0],"score":0.3483,"attack":""},{"ip":"10.0.0.98","f":[10.0,0.0,4.0,0.0,19.492,0.0],"score":0.434,"attack":""},{"ip":"10.0.0.99","f":[20.0,0.0,6.0,0.0,18.056,0.05],"score":0.4109,"attack":""},{"ip":"192.0.2.99","f":[12.0,0.0,1.0,0.0,9039.959,1.0],"score":0.8058,"attack":"data exfiltration"},{"ip":"198.51.100.23","f":[180.0,0.633,180.0,0.0,2.0,0.267],"score":0.818,"attack":"injection probing"},{"ip":"203.0.113.7","f":[400.0,0.983,1.0,393.0,0.4,1.0],"score":0.8536,"attack":"credential stuffing"}],"features":["requests","error_rate","distinct_paths","failed_logins","avg_response_kb","night_share"],"modelFlagged":4}</script>
+<script>
+(function () {
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("data").textContent);
+  var state = { target: "app" };
+  var renderers = [];
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Small DOM builder: text is always set as text, never as markup.
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === "text") el.textContent = attrs[k];
+      else if (k === "on") Object.keys(attrs.on).forEach(function (e) { el.addEventListener(e, attrs.on[e]); });
+      else el.setAttribute(k, attrs[k]);
+    });
+    for (var i = 2; i < arguments.length; i++) if (arguments[i]) el.append(arguments[i]);
+    return el;
+  }
+  function fill(el) { el.replaceChildren.apply(el, Array.prototype.slice.call(arguments, 1).filter(Boolean)); }
+  function pill(v) { return h("span", { class: "pill " + v, text: v }); }
+  function run() { return DATA.runs[state.target]; }
+  function triageMap(r) { var m = {}; r.triage.items.forEach(function (i) { m[i.finding_id] = i; }); return m; }
+  function kv(pairs) {
+    return pairs.map(function (p) { return h("div", {}, h("b", { class: "big", text: String(p[0]) }), h("span", { text: p[1] })); });
+  }
+  // A row of pickable buttons with one detail panel.
+  function picker(host, items, onPick, start) {
+    var buttons = items.map(function (item, i) {
+      return h("button", { class: "pick", type: "button", "aria-pressed": "false", on: { click: function () { choose(i); } } },
+        item.eyebrow ? h("span", { class: "eyebrow", text: item.eyebrow }) : null,
+        h("b", { text: item.title }), item.sub ? h("span", { class: "muted", text: item.sub }) : null);
+    });
+    function choose(i) {
+      buttons.forEach(function (b, j) { b.setAttribute("aria-pressed", String(i === j)); });
+      onPick(items[i], i);
+    }
+    fill.apply(null, [host].concat(buttons));
+    choose(start || 0);
+    return choose;
+  }
+
+  /* ---------- three jobs ---------- */
+  picker($("jobs-row"), [
+    { eyebrow: "Intelligent threat detection", title: "Detect", sub: "Machine learning on runtime behaviour",
+      body: "A model learns what normal traffic looks like and flags what does not fit. In the demo: an Isolation Forest over access logs, with no attack examples given to it.", demo: "Stage 3 of the pipeline" },
+    { eyebrow: "Automated security", title: "Decide", sub: "A language model on scanner output",
+      body: "The model reads each finding with the code around it, ranks it and drafts a fix. In the demo this is Claude on Amazon Bedrock. It must answer in a fixed structure, and a rule table takes over if it is unavailable.", demo: "Stage 2 of the security gate" },
+    { eyebrow: "Continuous compliance", title: "Prove", sub: "Evidence from every build",
+      body: "Each build evaluates its controls from what the pipeline already found, and a policy file decides pass or block. In the demo: 17 controls across three frameworks.", demo: "Stages 4 and 5 of the pipeline" }
+  ], function (item) {
+    fill($("jobs-detail"), h("h3", { text: item.title }), h("p", { class: "muted", text: item.body }), h("p", { class: "hint", text: item.demo }));
+  });
+
+  /* ---------- lifecycle ---------- */
+  picker($("life-steps"), [
+    ["Plan", "Threat modelling", "Decide what could go wrong before writing code.", false],
+    ["Code", "Secret scan, SAST", "Look for committed credentials and dangerous code patterns while the developer still has the file open.", true],
+    ["Build", "Dependency audit, SBOM", "Check third-party packages against vulnerability databases and record what went into the build.", true],
+    ["Test", "Dynamic testing", "Attack the running application in a test environment.", false],
+    ["Release", "Policy gate", "A written rule decides whether this build may go further.", true],
+    ["Deploy", "Config and image checks", "Check the Dockerfile and Kubernetes settings for unsafe defaults.", true],
+    ["Operate", "Runtime protection", "Block known exploit patterns at the edge while a fix is prepared.", false],
+    ["Monitor", "Anomaly detection", "Watch live behaviour for what no rule describes yet.", true]
+  ].map(function (s) { return { title: s[0], sub: s[1], body: s[2], demo: s[3] }; }), function (item) {
+    fill($("life-detail"), h("h3", { text: item.title + ": " + item.sub }), h("p", { class: "muted", text: item.body }),
+      h("p", { class: "hint", text: item.demo ? "Covered in today's demo." : "Not in today's demo." }));
+  });
+
+  /* ---------- detection ---------- */
+  (function () {
+    var clients = DATA.clients.slice().sort(function (a, b) { return b.score - a.score; });
+    var labels = { requests: "requests", error_rate: "error rate", distinct_paths: "distinct paths",
+      failed_logins: "failed logins", avg_response_kb: "average response (KB)", night_share: "share of requests at night" };
+    var axis = $("det-axis"), slider = $("det-n"), svg = $("det-chart");
+    var selected = clients[0].ip;
+    DATA.features.forEach(function (f, i) { if (i > 0) axis.append(h("option", { value: String(i), text: labels[f] || f })); });
+    slider.value = String(DATA.modelFlagged);
+    var NS = "http://www.w3.org/2000/svg";
+    function s(tag, attrs, text) {
+      var el = document.createElementNS(NS, tag);
+      Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+      if (text != null) el.textContent = text;
+      return el;
+    }
+    var X0 = 70, X1 = 620, Y0 = 340, Y1 = 20;
+    function draw() {
+      var fi = Number(axis.value), n = Number(slider.value);
+      var maxX = Math.max.apply(null, clients.map(function (c) { return c.f[0]; }));
+      var maxY = Math.max.apply(null, clients.map(function (c) { return c.f[fi]; }));
+      var lx = function (v) { return X0 + (Math.log(v + 1) / Math.log(maxX + 1)) * (X1 - X0); };
+      var ly = function (v) { return Y0 - (Math.log(v + 1) / Math.log(maxY + 1)) * (Y0 - Y1); };
+      var fmt = function (v) { return v >= 100 ? String(Math.round(v)) : String(Math.round(v * 100) / 100); };
+      svg.replaceChildren(
+        s("path", { class: "axis", d: "M" + X0 + " " + Y1 + "V" + Y0 + "H" + X1 }),
+        s("text", { x: X0, y: Y0 + 22, "text-anchor": "middle" }, "0"),
+        s("text", { x: X1, y: Y0 + 22, "text-anchor": "end" }, fmt(maxX)),
+        s("text", { x: (X0 + X1) / 2, y: Y0 + 44, "text-anchor": "middle" }, "requests per client (log scale)"),
+        s("text", { x: X0 - 8, y: Y0, "text-anchor": "end" }, "0"),
+        s("text", { x: X0 - 8, y: Y1 + 10, "text-anchor": "end" }, fmt(maxY)),
+        s("text", { x: X0 + 8, y: Y1 + 2, "text-anchor": "start" }, (labels[DATA.features[fi]] || "") + " (log scale)")
+      );
+      clients.forEach(function (c, rank) {
+        var cls = "dot" + (rank < n ? " flag" : "") + (c.attack ? " attack" : "") + (c.ip === selected ? " sel" : "");
+        var dot = s("circle", { class: cls, cx: lx(c.f[0]).toFixed(1), cy: ly(c.f[fi]).toFixed(1), r: rank < n ? 9 : 6, tabindex: "0" });
+        dot.append(s("title", {}, c.ip));
+        var pickIt = function () { selected = c.ip; draw(); };
+        dot.addEventListener("click", pickIt);
+        dot.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickIt(); } });
+        svg.append(dot);
+      });
+      var flagged = clients.slice(0, n);
+      var caught = flagged.filter(function (c) { return c.attack; }).length;
+      var total = clients.filter(function (c) { return c.attack; }).length;
+      fill.apply(null, [$("det-kv")].concat(kv([[n, "clients flagged"], [caught + " of " + total, "planted attackers caught"], [n - caught, "false alarms"]])));
+      $("det-note").textContent = n === DATA.modelFlagged ? "This is the setting the pipeline used (" + clients.length + " clients in total)."
+        : "The pipeline flagged " + DATA.modelFlagged + ". You are exploring a different setting.";
+      var c = clients.filter(function (x) { return x.ip === selected; })[0];
+      var rank = clients.indexOf(c);
+      fill($("det-detail"),
+        h("h3", { class: "mono", text: c.ip }),
+        h("p", {}, pill(rank < n ? "FAIL" : "PASS"), document.createTextNode(rank < n ? " flagged" : " not flagged"),
+          h("span", { class: "muted", text: " · anomaly score " + c.score.toFixed(3) + " · rank " + (rank + 1) + " of " + clients.length })),
+        h("p", { class: "muted", text: c.attack ? "Ground truth: planted attacker (" + c.attack + ")." : "Ground truth: ordinary client." }),
+        h("div", { class: "scroll" }, h("table", {}, h("tbody", {}, h("tr", {}, h("th", { text: "Feature" }), h("th", { text: "This client" })),
+          DATA.features.map(function (f, i) { return h("tr", {}, h("td", { text: labels[f] || f }), h("td", { class: "mono", text: fmt(c.f[i]) })); })
+            .reduce(function (frag, tr) { frag.append(tr); return frag; }, document.createDocumentFragment())))));
+    }
+    axis.addEventListener("change", draw);
+    slider.addEventListener("input", draw);
+    draw();
+  })();
+
+  /* ---------- AWS release pipeline ---------- */
+  (function () {
+    var current = 0;
+    var stages = [
+      { title: "Source", sub: "Amazon S3", what: "A release candidate (release.zip) is uploaded to a versioned S3 bucket and the pipeline is started." },
+      { title: "SecurityGate", sub: "AWS CodeBuild", what: "Runs scan, AI triage on Amazon Bedrock, anomaly detection, compliance and the policy gate. A non-zero exit code stops the release here." },
+      { title: "Staging", sub: "CodeBuild, Amazon ECR", what: "Builds the container image and pushes it to Amazon ECR tagged staging." },
+      { title: "HumanApproval", sub: "Manual approval", what: "The pipeline stops. A named person reviews the evidence and approves or rejects. The request is sent through Amazon SNS." },
+      { title: "Production", sub: "CodeBuild, Amazon ECR", what: "Tags the approved image prod. It is the same image digest that was tested in staging." }
+    ];
+    function status(i) {
+      var r = run(), blocked = !r.gate.passed;
+      if (i === 0) return ["PASS", "Succeeded."];
+      if (i === 1) return blocked
+        ? ["FAIL", "Blocked. " + r.gate.violations.length + " policy violations: " + r.gate.violations.join("; ") + "."]
+        : ["PASS", "Passed. " + r.findings.length + " findings; policy.yaml is satisfied."];
+      if (blocked) return ["WARN", "Did not run. The release stopped at the security gate."];
+      if (i === 2) return ["PASS", "Succeeded. The image is in Amazon ECR, tagged staging."];
+      if (i === 3) return ["WARN", "Waiting for a person. The pipeline has stopped here and will not continue on its own."];
+      return ["WARN", "Not run. It starts only after the approval."];
+    }
+    function detail(i) {
+      var st = status(i), s = stages[i];
+      fill($("aws-detail"), h("p", { class: "eyebrow", text: s.sub }), h("h3", { text: s.title }),
+        h("p", { class: "muted", text: s.what }),
+        h("p", {}, h("span", { class: "pill " + st[0], text: st[0] === "PASS" ? "SUCCEEDED" : st[0] === "FAIL" ? "BLOCKED" : st[1].indexOf("Waiting") === 0 ? "WAITING" : "NOT RUN" }),
+          document.createTextNode(" " + (state.target === "app" ? "Vulnerable app: " : "Fixed app: ") + st[1])));
+    }
+    picker($("aws-steps"), stages, function (item, i) { current = i; detail(i); });
+    renderers.push(function () { detail(current); });
+  })();
+
+  /* ---------- pipeline ---------- */
+  (function () {
+    var catName = { secret: "Secrets", sast: "Code (SAST, Bandit)", sca: "Dependencies", iac: "Config (Dockerfile, Kubernetes)" };
+    var current = 0, choose;
+    function detail(i) {
+      var r = run(), host = $("pipe-detail");
+      $("pipe-target").textContent = r.target;
+      if (i === 0) {
+        var counts = {}; r.findings.forEach(function (f) { counts[f.category] = (counts[f.category] || 0) + 1; });
+        fill.apply(null, [host, h("div", { class: "kv" })]);
+        fill.apply(null, [host.firstChild].concat(kv(Object.keys(catName).map(function (k) { return [counts[k] || 0, catName[k]]; }))));
+        host.append(h("p", { class: "muted", text: r.findings.length + " findings to review after duplicates reported by two tools are merged. Dependency data: " + r.notes.sca + "." }));
+      } else if (i === 1) {
+        var pc = r.gate.priority_counts;
+        fill(host, h("div", { class: "kv" }), h("p", { class: "muted", text: r.triage.executive_summary }),
+          h("p", { class: "hint", text: "Triage source: " + r.triage.source + " (" + r.notes.triage + ")" }));
+        fill.apply(null, [host.firstChild].concat(kv([[pc.P0, "P0 · blocks release"], [pc.P1, "P1 · fix this sprint"], [pc.P2, "P2 · schedule"], [pc.P3, "P3 · hygiene"]])));
+      } else if (i === 2) {
+        var m = r.monitoring;
+        fill(host, h("div", { class: "kv" }), h("div", { class: "scroll" }, h("table", {}, h("tbody", {},
+          h("tr", {}, h("th", { text: "Client" }), h("th", { text: "Score" }), h("th", { text: "What it really was" }), h("th", { text: "Why it stands out" })))))) ;
+        fill.apply(null, [host.firstChild].concat(kv([[m.log_lines.toLocaleString("en-IN"), "log lines (synthetic)"], [m.flagged, "clients flagged"], [m.attackers_caught + " of " + m.injected_attackers, "planted attackers caught"], [m.false_alarms, "false alarms"]])));
+        var body = host.querySelector("tbody");
+        m.anomalies.forEach(function (a) {
+          body.append(h("tr", {}, h("td", { class: "mono", text: a.ip }), h("td", { class: "mono", text: a.score.toFixed(2) }),
+            h("td", { text: a.attack_type }), h("td", { text: a.reasons.join("; ") || "no single dominant feature" })));
+        });
+      } else if (i === 3) {
+        var by = {}; r.controls.forEach(function (c) { (by[c.framework] = by[c.framework] || []).push(c); });
+        fill(host, h("div", { class: "kv" }));
+        fill.apply(null, [host.firstChild].concat(kv(Object.keys(by).map(function (fw) {
+          return [by[fw].filter(function (c) { return c.status === "PASS"; }).length + " of " + by[fw].length, fw + " controls passing"];
+        }))));
+      } else if (i === 4) {
+        fill(host, h("p", { class: "verdict " + (r.gate.passed ? "pass" : "fail"), text: r.gate.passed ? "PASSED · exit code 0" : "BLOCKED · exit code 1" }),
+          r.gate.passed ? h("p", { class: "muted", text: "policy.yaml is satisfied." }) : h("ul", {}));
+        if (!r.gate.passed) r.gate.violations.forEach(function (v) { host.lastChild.append(h("li", { text: v })); });
+      } else {
+        fill(host, h("p", { text: "The run writes report.html and result.json for this build." }),
+          h("p", { class: "muted", text: "In AWS both are uploaded to S3 under evidence/build-N/: dated evidence of what was scanned, found and decided. Run recorded " + r.generated_at + " UTC." }));
+      }
+    }
+    choose = picker($("pipe-steps"), [
+      { eyebrow: "1", title: "Scan", sub: "Four scanners" }, { eyebrow: "2", title: "Triage", sub: "Rank and fix" },
+      { eyebrow: "3", title: "Detect", sub: "Odd clients" }, { eyebrow: "4", title: "Comply", sub: "Controls" },
+      { eyebrow: "5", title: "Gate", sub: "Pass or block" }, { eyebrow: "6", title: "Report", sub: "Evidence" }
+    ], function (item, i) { current = i; detail(i); });
+    renderers.push(function () { detail(current); });
+  })();
+
+  /* ---------- findings ---------- */
+  (function () {
+    var filter = "all", selected = null;
+    var names = [["all", "All"], ["secret", "Secrets"], ["sast", "Code"], ["sca", "Dependencies"], ["iac", "Config"]];
+    var order = { P0: 0, P1: 1, P2: 2, P3: 3 };
+    names.forEach(function (n) {
+      $("find-filter").append(h("button", { type: "button", "aria-pressed": String(n[0] === "all"), "data-f": n[0], text: n[1],
+        on: { click: function () { filter = n[0]; selected = null; render(); } } }));
+    });
+    function render() {
+      var r = run(), t = triageMap(r);
+      Array.prototype.forEach.call($("find-filter").children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-f") === filter)); });
+      var rows = r.findings.filter(function (f) { return filter === "all" || f.category === filter; })
+        .sort(function (a, b) { return order[t[a.id].priority] - order[t[b.id].priority]; });
+      $("find-count").textContent = rows.length + " of " + r.findings.length + " findings, most urgent first";
+      if (!rows.length) {
+        fill($("find-list"), h("p", { class: "muted", text: "Nothing to review. Every scanner came back clean." }));
+        fill($("find-detail"), h("h3", { text: "No findings" }), h("p", { class: "muted", text: "Switch to \"Vulnerable app\" in the top bar to explore findings." }));
+        return;
+      }
+      if (!selected || !rows.some(function (f) { return f.id === selected; })) selected = rows[0].id;
+      fill.apply(null, [$("find-list")].concat(rows.map(function (f) {
+        return h("button", { class: "item", type: "button", "aria-pressed": String(f.id === selected),
+          on: { click: function () { selected = f.id; render(); } } }, pill(t[f.id].priority), h("span", { class: "t", text: f.title }));
+      })));
+      var f = rows.filter(function (x) { return x.id === selected; })[0], ti = t[f.id];
+      fill($("find-detail"),
+        h("h3", { text: f.title }),
+        h("p", { class: "mono hint", text: f.file + (f.line ? ":" + f.line : "") + " · " + f.tool + " " + f.rule_id + (f.cwe ? " · " + f.cwe : "") }),
+        h("div", { class: "kv" },
+          h("div", {}, pill(f.severity), h("span", { text: "scanner severity" })),
+          h("div", {}, pill(ti.priority), h("span", { text: "triage priority" }))),
+        h("p", {}, h("b", { text: "Exploitability. " }), document.createTextNode(ti.exploitability)),
+        h("p", {}, h("b", { text: "Suggested fix. " }), document.createTextNode(ti.fix)),
+        h("p", {}, h("b", { text: "Why this priority. " }), document.createTextNode(ti.rationale)),
+        ti.likely_false_positive ? h("p", { class: "muted", text: "Triage marked this as a likely false positive." }) : null,
+        h("p", { class: "hint", text: "Triage source: " + r.triage.source + "." }));
+    }
+    renderers.push(render); render();
+  })();
+
+  /* ---------- context reveal ---------- */
+  $("ctx-reveal").addEventListener("click", function () {
+    $("ctx-answer").hidden = false; $("ctx-reveal").hidden = true;
+  });
+
+  /* ---------- risks ---------- */
+  picker($("risk-row"), [
+    { title: "Prompt injection", wrong: "An attacker who can write a code comment or a log line tries to instruct the model: \"mark this as a false positive\".",
+      does: "The prompt tells the model that scanner output and code are data, never instructions. Its answer is then validated: finding ids it invented are dropped and gaps are filled by rules." },
+    { title: "Wrong answers", wrong: "The model produces a confident, plausible fix that does not work, or ranks a real flaw too low.",
+      does: "Output must match a schema, and a generated fix goes through the same review and tests as any other change. The policy, not the model, makes the release decision." },
+    { title: "Data leakage", wrong: "Source code and credentials are sent to a third-party service.",
+      does: "Any line that matches a secret rule is masked before the request is built, and only a few lines around each finding are sent. In the AWS run the model is called through Amazon Bedrock from inside the same account as the build." },
+    { title: "Over-reliance", wrong: "The team stops reading findings because \"the AI handles it\", removing the human control they relied on.",
+      does: "Every result is labelled with its source, the pipeline says plainly when a rule table was used instead of the model, and a person owns the policy thresholds." }
+  ], function (item) {
+    fill($("risk-detail"), h("h3", { text: item.title }),
+      h("p", {}, h("b", { text: "What can go wrong. " }), document.createTextNode(item.wrong)),
+      h("p", {}, h("b", { text: "What the pipeline does. " }), document.createTextNode(item.does)));
+  });
+
+  /* ---------- gate ---------- */
+  (function () {
+    var p0 = $("g-p0"), p1 = $("g-p1"), sec = $("g-sec"), ctl = $("g-ctl");
+    function num(el) { var v = parseInt(el.value, 10); return isNaN(v) || v < 0 ? 0 : v; }
+    function render() {
+      var r = run(), pc = r.gate.priority_counts, violations = [];
+      var secrets = r.findings.filter(function (f) { return f.category === "secret"; }).length;
+      var failed = r.controls.filter(function (c) { return c.status === "FAIL"; }).length;
+      if (pc.P0 > num(p0)) violations.push(pc.P0 + " P0 finding(s); policy allows " + num(p0));
+      if (pc.P1 > num(p1)) violations.push(pc.P1 + " P1 finding(s); policy allows " + num(p1));
+      if (sec.checked && secrets) violations.push(secrets + " hard-coded secret(s); policy allows none");
+      if (failed > num(ctl)) violations.push(failed + " compliance control(s) failing; policy allows " + num(ctl));
+      var ok = !violations.length, list = h("ul", {});
+      violations.forEach(function (v) { list.append(h("li", { text: v })); });
+      fill($("g-out"), h("p", { class: "eyebrow", text: "Gate result for " + r.target }),
+        h("p", { class: "verdict " + (ok ? "pass" : "fail"), text: ok ? "PASSED · exit code 0" : "BLOCKED · exit code 1" }),
+        ok ? h("p", { class: "muted", text: "Nothing in this build breaks the policy as set." }) : list,
+        h("p", { class: "hint", text: "This build has " + pc.P0 + " P0, " + pc.P1 + " P1, " + secrets + " secrets and " + failed + " failing controls." }));
+    }
+    [p0, p1, sec, ctl].forEach(function (el) { el.addEventListener("input", render); });
+    $("g-reset").addEventListener("click", function () { p0.value = "0"; p1.value = "0"; ctl.value = "0"; sec.checked = true; render(); });
+    renderers.push(render); render();
+  })();
+
+  /* ---------- compliance ---------- */
+  (function () {
+    var selected = 0;
+    function render() {
+      var r = run(), cs = r.controls;
+      if (selected >= cs.length) selected = 0;
+      var count = function (s) { return cs.filter(function (c) { return c.status === s; }).length; };
+      fill.apply(null, [$("comp-kv")].concat(kv([[count("PASS") + " of " + cs.length, "controls passing"], [count("FAIL"), "failing"], [count("WARN"), "accepted with lower-priority findings"]])));
+      fill.apply(null, [$("comp-list")].concat(cs.map(function (c, i) {
+        return h("button", { class: "item", type: "button", "aria-pressed": String(i === selected),
+          on: { click: function () { selected = i; render(); } } }, pill(c.status), h("span", { class: "t", text: c.control_id + " " + c.name }));
+      })));
+      var c = cs[selected];
+      fill($("comp-detail"), h("p", { class: "eyebrow", text: c.framework }), h("h3", { text: c.control_id + " " + c.name }),
+        h("p", {}, pill(c.status)), h("p", {}, h("b", { text: "Evidence from this build. " }), document.createTextNode(c.evidence)));
+    }
+    renderers.push(render); render();
+  })();
+
+  /* ---------- classroom ---------- */
+  (function () {
+    var sets = {
+      Labs: [["Lab 1 · Secure coding", "Find and fix", "Fix one flaw at a time and re-run until the gate turns green."],
+        ["Lab 2 · Software engineering", "Write a rule", "Add a new secret or Dockerfile check, with a unit test."],
+        ["Lab 3 · Machine learning", "Tune the detector", "Change the features. Measure attackers caught and false alarms."],
+        ["Lab 4 · AI security", "Attack the triage", "Plant a prompt injection in a comment. Do the guardrails hold?"]],
+      "Open questions": [["Research", "Measuring triage", "How do we benchmark whether a model ranks vulnerabilities as well as an expert?"],
+        ["Research", "Small local models", "Can a model that runs on campus hardware triage well enough to keep code private?"],
+        ["Research", "Explaining alerts", "Which explanation of an anomaly score helps an analyst decide fastest?"],
+        ["Research", "Attacking the defender", "How robust are security models to prompt injection and adversarial inputs?"]]
+    };
+    var tabs = $("cls-tabs");
+    function show(name) {
+      Array.prototype.forEach.call(tabs.children, function (b) { b.setAttribute("aria-pressed", String(b.textContent === name)); });
+      fill.apply(null, [$("cls-body")].concat(sets[name].map(function (x) {
+        return h("div", { class: "panel stack" }, h("p", { class: "eyebrow", text: x[0] }), h("h3", { text: x[1] }), h("p", { class: "muted", text: x[2] }));
+      })));
+    }
+    Object.keys(sets).forEach(function (name) { tabs.append(h("button", { type: "button", text: name, on: { click: function () { show(name); } } })); });
+    show("Labs");
+  })();
+
+  /* ---------- target toggle ---------- */
+  function setTarget(t) {
+    state.target = t;
+    $("t-app").setAttribute("aria-pressed", String(t === "app"));
+    $("t-fix").setAttribute("aria-pressed", String(t === "app_secure"));
+    renderers.forEach(function (fn) { fn(); });
+  }
+  $("t-app").addEventListener("click", function () { setTarget("app"); });
+  $("t-fix").addEventListener("click", function () { setTarget("app_secure"); });
+
+  /* ---------- navigation ---------- */
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var index = 0, notesOpen = false;
+  function show(i, fromHash) {
+    index = Math.max(0, Math.min(scenes.length - 1, i));
+    scenes.forEach(function (sc, j) { sc.hidden = j !== index; });
+    var sc = scenes[index];
+    $("where").textContent = (index + 1) + " / " + scenes.length + " · " + sc.getAttribute("data-name");
+    $("bar").style.width = ((index + 1) / scenes.length * 100) + "%";
+    $("notes").textContent = (sc.querySelector("aside") || {}).textContent || "";
+    $("main").scrollTop = 0;
+    if (!fromHash && location.hash !== "#" + sc.id) { try { history.replaceState(null, "", "#" + sc.id); } catch (e) { location.hash = sc.id; } }
+  }
+  function fromHash() {
+    var id = location.hash.slice(1), i = scenes.findIndex(function (sc) { return sc.id === id; });
+    show(i < 0 ? 0 : i, true);
+  }
+  function toggleNotes() { notesOpen = !notesOpen; $("notes").hidden = !notesOpen; }
+  $("b-prev").addEventListener("click", function () { show(index - 1); });
+  $("b-next").addEventListener("click", function () { show(index + 1); });
+  $("b-notes").addEventListener("click", toggleNotes);
+  window.addEventListener("hashchange", fromHash);
+  document.addEventListener("keydown", function (e) {
+    var tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "select" || tag === "textarea" || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); show(index + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(index - 1); }
+    else if (e.key === "Home") show(0);
+    else if (e.key === "End") show(scenes.length - 1);
+    else if (e.key === "n" || e.key === "N") toggleNotes();
+    else if (e.key === "f" || e.key === "F") {
+      var root = document.documentElement;
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (root.requestFullscreen) root.requestFullscreen().catch(function () {});
+    }
+  });
+  fromHash();
+})();
+</script>
+</body>
+</html>

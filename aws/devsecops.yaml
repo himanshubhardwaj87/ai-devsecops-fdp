@@ -1,0 +1,459 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  AI-driven DevSecOps demo. A CodePipeline that scans a release, triages findings with Claude on
+  Amazon Bedrock, blocks or passes on a policy gate, builds an image for staging and waits for a
+  person before promoting to production. A second path notifies on new Inspector and GuardDuty findings.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: shoplite-devsecops
+    AllowedPattern: "^[a-z][a-z0-9-]{2,30}$"
+    Description: Lower-case prefix for resource names.
+  NotificationEmail:
+    Type: String
+    AllowedPattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+    Description: Address that receives approval requests and security alerts. Confirm the subscription email after deploy.
+  BedrockModelId:
+    Type: String
+    Default: anthropic.claude-opus-5-5
+    Description: Bedrock model id used for AI triage. Model access must be enabled in this region.
+
+Resources:
+  # ------------------------------------------------------------------ storage
+  SourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration: { Status: Enabled }
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration: { Status: Enabled }
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  ImageRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref ProjectName
+      EmptyOnDelete: true
+      ImageScanningConfiguration: { ScanOnPush: true }
+
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${ProjectName}-alerts"
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref NotificationEmail
+
+  # ------------------------------------------------------------------ roles
+  ScanRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: codebuild.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: scan
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: Logs
+                Effect: Allow
+                Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-*"
+              - Sid: PipelineArtifacts
+                Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:PutObject]
+                Resource: !Sub "${ArtifactBucket.Arn}/*"
+              - Sid: AiTriage
+                Effect: Allow
+                # bedrock-mantle is the Messages-API Bedrock endpoint the Anthropic SDK client signs for.
+                Action: [bedrock-mantle:CreateInference, bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+                Resource: "*"
+              - Sid: DependencyIntelligence
+                Effect: Allow
+                Action: inspector-scan:ScanSbom
+                Resource: "*"
+              - Sid: ComplianceEvidence
+                Effect: Allow
+                Action: securityhub:BatchImportFindings
+                Resource: "*"
+
+  ImageRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: codebuild.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: image
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: Logs
+                Effect: Allow
+                Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-*"
+              - Sid: PipelineArtifacts
+                Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:PutObject]
+                Resource: !Sub "${ArtifactBucket.Arn}/*"
+              - Sid: RegistryLogin
+                Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: "*"
+              - Sid: PushAndPromote
+                Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                  - ecr:PutImage
+                  - ecr:DescribeImages
+                Resource: !GetAtt ImageRepository.Arn
+
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: codepipeline.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: pipeline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: Source
+                Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:GetBucketVersioning, s3:ListBucket]
+                Resource: [!GetAtt SourceBucket.Arn, !Sub "${SourceBucket.Arn}/*"]
+              - Sid: Artifacts
+                Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:PutObject, s3:ListBucket, s3:GetBucketVersioning]
+                Resource: [!GetAtt ArtifactBucket.Arn, !Sub "${ArtifactBucket.Arn}/*"]
+              - Sid: Builds
+                Effect: Allow
+                Action: [codebuild:StartBuild, codebuild:BatchGetBuilds]
+                Resource:
+                  - !GetAtt ScanProject.Arn
+                  - !GetAtt StagingProject.Arn
+                  - !GetAtt PromoteProject.Arn
+              - Sid: ApprovalNotice
+                Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref AlertTopic
+
+  # ------------------------------------------------------------------ build projects
+  ScanProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub "${ProjectName}-security-gate"
+      Description: Scan, AI triage, threat detection, compliance and the policy gate. A non-zero exit blocks the release.
+      ServiceRole: !GetAtt ScanRole.Arn
+      Artifacts: { Type: CODEPIPELINE }
+      TimeoutInMinutes: 20
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        EnvironmentVariables:
+          - { Name: BEDROCK_MODEL_ID, Value: !Ref BedrockModelId }
+          - { Name: EVIDENCE_BUCKET, Value: !Ref ArtifactBucket }
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                python: 3.12
+              commands:
+                - pip install -q -r requirements.txt -r aws/requirements-aws.txt
+            build:
+              commands:
+                - TARGET=$(cat TARGET)
+                - echo "Release candidate folder is $TARGET"
+                - python -m pipeline.run --target "$TARGET" --ai bedrock --sca inspector --security-hub
+              finally:
+                - aws s3 cp out/ "s3://$EVIDENCE_BUCKET/evidence/build-$CODEBUILD_BUILD_NUMBER/" --recursive || echo "no evidence to upload"
+
+  StagingProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub "${ProjectName}-staging-image"
+      Description: Builds the container image and tags it staging. Runs only after the security gate passes.
+      ServiceRole: !GetAtt ImageRole.Arn
+      Artifacts: { Type: CODEPIPELINE }
+      TimeoutInMinutes: 20
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - { Name: REPO_URI, Value: !GetAtt ImageRepository.RepositoryUri }
+          - { Name: REGISTRY, Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com" }
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - TARGET=$(cat TARGET)
+                - aws ecr get-login-password | docker login --username AWS --password-stdin "$REGISTRY"
+            build:
+              commands:
+                - docker build -t "$REPO_URI:staging" -t "$REPO_URI:build-$CODEBUILD_BUILD_NUMBER" "$TARGET"
+            post_build:
+              commands:
+                - docker push "$REPO_URI:build-$CODEBUILD_BUILD_NUMBER"
+                - docker push "$REPO_URI:staging"
+
+  PromoteProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub "${ProjectName}-promote"
+      Description: Tags the approved staging image as prod. Runs only after a person approves.
+      ServiceRole: !GetAtt ImageRole.Arn
+      Artifacts: { Type: CODEPIPELINE }
+      TimeoutInMinutes: 10
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        EnvironmentVariables:
+          - { Name: REPO_NAME, Value: !Ref ImageRepository }
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                - STAGING=$(aws ecr describe-images --repository-name "$REPO_NAME" --image-ids imageTag=staging --query 'imageDetails[0].imageDigest' --output text)
+                - PROD=$(aws ecr describe-images --repository-name "$REPO_NAME" --image-ids imageTag=prod --query 'imageDetails[0].imageDigest' --output text 2>/dev/null || echo none)
+                - echo "staging is $STAGING, prod is $PROD"
+                - |
+                  if [ "$STAGING" = "$PROD" ]; then
+                    echo "prod already points at the approved image"
+                  else
+                    MANIFEST=$(aws ecr batch-get-image --repository-name "$REPO_NAME" --image-ids imageTag=staging --query 'images[0].imageManifest' --output text)
+                    aws ecr put-image --repository-name "$REPO_NAME" --image-tag prod --image-manifest "$MANIFEST"
+                  fi
+
+  # ------------------------------------------------------------------ pipeline
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Ref ProjectName
+      PipelineType: V2
+      RoleArn: !GetAtt PipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: ReleaseCandidate
+              ActionTypeId: { Category: Source, Owner: AWS, Provider: S3, Version: "1" }
+              Configuration:
+                S3Bucket: !Ref SourceBucket
+                S3ObjectKey: release.zip
+                PollForSourceChanges: "false"
+              OutputArtifacts: [{ Name: SourceOutput }]
+        - Name: SecurityGate
+          Actions:
+            - Name: ScanTriageComply
+              ActionTypeId: { Category: Build, Owner: AWS, Provider: CodeBuild, Version: "1" }
+              Configuration: { ProjectName: !Ref ScanProject }
+              InputArtifacts: [{ Name: SourceOutput }]
+        - Name: Staging
+          Actions:
+            - Name: BuildImage
+              ActionTypeId: { Category: Build, Owner: AWS, Provider: CodeBuild, Version: "1" }
+              Configuration: { ProjectName: !Ref StagingProject }
+              InputArtifacts: [{ Name: SourceOutput }]
+        - Name: HumanApproval
+          Actions:
+            - Name: ApproveProductionRelease
+              ActionTypeId: { Category: Approval, Owner: AWS, Provider: Manual, Version: "1" }
+              Configuration:
+                NotificationArn: !Ref AlertTopic
+                CustomData: The security gate passed and the image is tagged staging. Review the evidence in the artifact bucket and Security Hub before approving.
+        - Name: Production
+          Actions:
+            - Name: PromoteImage
+              ActionTypeId: { Category: Build, Owner: AWS, Provider: CodeBuild, Version: "1" }
+              Configuration: { ProjectName: !Ref PromoteProject }
+              InputArtifacts: [{ Name: SourceOutput }]
+
+  # ------------------------------------------------------------------ continuous monitoring
+  ResponderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: notify
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref AlertTopic
+
+  FindingResponder:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-finding-responder"
+      Description: Turns a new Inspector or GuardDuty finding into a readable alert. It notifies; it never changes production.
+      Runtime: python3.13
+      Handler: index.handler
+      Timeout: 15
+      Role: !GetAtt ResponderRole.Arn
+      Environment:
+        Variables:
+          TOPIC_ARN: !Ref AlertTopic
+          PIPELINE_NAME: !Ref ProjectName
+      Code:
+        ZipFile: |
+          import json
+          import os
+
+          import boto3
+
+          sns = boto3.client("sns")
+
+
+          def summarise(event):
+              detail = event.get("detail", {})
+              source = event.get("source", "unknown")
+              if source == "aws.inspector2":
+                  resources = [r.get("id", "?") for r in detail.get("resources", [])]
+                  return (
+                      f"New vulnerability: {detail.get('title', 'untitled')}",
+                      [
+                          f"Severity: {detail.get('severity', 'unknown')}",
+                          f"Type: {detail.get('type', 'unknown')}",
+                          f"Affected: {', '.join(resources) or 'not listed'}",
+                          "Detected by Amazon Inspector re-evaluating what is already deployed.",
+                      ],
+                  )
+              if source == "aws.guardduty":
+                  return (
+                      f"Threat detected: {detail.get('title', 'untitled')}",
+                      [
+                          f"Severity: {detail.get('severity', 'unknown')} (GuardDuty scale 1-10)",
+                          f"Type: {detail.get('type', 'unknown')}",
+                          f"Detail: {detail.get('description', 'none')}",
+                          "Detected by Amazon GuardDuty.",
+                      ],
+                  )
+              return ("Security event", [json.dumps(detail)[:800]])
+
+
+          def handler(event, context):
+              subject, lines = summarise(event)
+              pipeline = os.environ["PIPELINE_NAME"]
+              lines += [
+                  "",
+                  "Nothing in production was changed automatically.",
+                  f"Next step for a person: re-run the '{pipeline}' pipeline to re-evaluate the release gate,",
+                  "then review and approve the fix through the normal approval stage.",
+              ]
+              sns.publish(TopicArn=os.environ["TOPIC_ARN"], Subject=subject[:100], Message="\n".join(lines))
+              return {"notified": True, "subject": subject}
+
+  InspectorFindingRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: New high or critical Amazon Inspector findings.
+      EventPattern:
+        source: [aws.inspector2]
+        detail-type: [Inspector2 Finding]
+        detail:
+          severity: [HIGH, CRITICAL]
+          status: [ACTIVE]
+      Targets:
+        - { Arn: !GetAtt FindingResponder.Arn, Id: responder }
+
+  GuardDutyFindingRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: High-severity Amazon GuardDuty findings.
+      EventPattern:
+        source: [aws.guardduty]
+        detail-type: [GuardDuty Finding]
+        detail:
+          severity: [{ numeric: [">=", 7] }]
+      Targets:
+        - { Arn: !GetAtt FindingResponder.Arn, Id: responder }
+
+  InspectorInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FindingResponder
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt InspectorFindingRule.Arn
+
+  GuardDutyInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FindingResponder
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt GuardDutyFindingRule.Arn
+
+Outputs:
+  SourceBucketName:
+    Description: Upload release.zip here, then start the pipeline.
+    Value: !Ref SourceBucket
+  ArtifactBucketName:
+    Description: Pipeline artifacts and per-build evidence (evidence/build-N/).
+    Value: !Ref ArtifactBucket
+  PipelineName:
+    Value: !Ref Pipeline
+  ImageRepositoryUri:
+    Value: !GetAtt ImageRepository.RepositoryUri
+  ResponderFunction:
+    Description: Invoke with aws/sample-events/*.json to rehearse the alert path.
+    Value: !Ref FindingResponder
+  PipelineConsoleUrl:
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/${ProjectName}/view?region=${AWS::Region}"

@@ -1,0 +1,685 @@
+{
+  "target": "app",
+  "generated_at": "2026-11-17 04:47",
+  "findings": [
+    {
+      "id": "SECRET-c674e7",
+      "tool": "secret-scan",
+      "category": "secret",
+      "rule_id": "SEC003",
+      "title": "Hard-coded credential",
+      "severity": "CRITICAL",
+      "file": "app/app.py",
+      "line": 18,
+      "detail": "Matched value shop********************* (redacted)",
+      "cwe": "CWE-798"
+    },
+    {
+      "id": "SECRET-b85589",
+      "tool": "secret-scan",
+      "category": "secret",
+      "rule_id": "SEC001",
+      "title": "AWS access key id",
+      "severity": "CRITICAL",
+      "file": "app/app.py",
+      "line": 19,
+      "detail": "Matched value AKIA**************** (redacted)",
+      "cwe": "CWE-798"
+    },
+    {
+      "id": "SECRET-5ec96f",
+      "tool": "secret-scan",
+      "category": "secret",
+      "rule_id": "SEC003",
+      "title": "Hard-coded credential",
+      "severity": "CRITICAL",
+      "file": "app/app.py",
+      "line": 20,
+      "detail": "Matched value Sup3**************** (redacted)",
+      "cwe": "CWE-798"
+    },
+    {
+      "id": "SAST-fee9e6",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B403",
+      "title": "Consider possible security implications associated with pickle module",
+      "severity": "LOW",
+      "file": "app/app.py",
+      "line": 8,
+      "detail": "blacklist: Consider possible security implications associated with pickle module.",
+      "cwe": "CWE-502"
+    },
+    {
+      "id": "SAST-3b3e53",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B404",
+      "title": "Consider possible security implications associated with the subprocess module",
+      "severity": "LOW",
+      "file": "app/app.py",
+      "line": 10,
+      "detail": "blacklist: Consider possible security implications associated with the subprocess module.",
+      "cwe": "CWE-78"
+    },
+    {
+      "id": "SAST-dd96ee",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B324",
+      "title": "Use of weak MD5 hash for security",
+      "severity": "HIGH",
+      "file": "app/app.py",
+      "line": 34,
+      "detail": "hashlib: Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "cwe": "CWE-327"
+    },
+    {
+      "id": "SAST-3c9cfb",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B608",
+      "title": "Possible SQL injection vector through string-based query construction",
+      "severity": "MEDIUM",
+      "file": "app/app.py",
+      "line": 36,
+      "detail": "hardcoded_sql_expressions: Possible SQL injection vector through string-based query construction.",
+      "cwe": "CWE-89"
+    },
+    {
+      "id": "SAST-d98951",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B602",
+      "title": "subprocess call with shell=True identified, security issue",
+      "severity": "HIGH",
+      "file": "app/app.py",
+      "line": 45,
+      "detail": "subprocess_popen_with_shell_equals_true: subprocess call with shell=True identified, security issue.",
+      "cwe": "CWE-78"
+    },
+    {
+      "id": "SAST-5b51f5",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B301",
+      "title": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue",
+      "severity": "MEDIUM",
+      "file": "app/app.py",
+      "line": 52,
+      "detail": "blacklist: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+      "cwe": "CWE-502"
+    },
+    {
+      "id": "SAST-004247",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B506",
+      "title": "Use of unsafe yaml load",
+      "severity": "MEDIUM",
+      "file": "app/app.py",
+      "line": 59,
+      "detail": "yaml_load: Use of unsafe yaml load. Allows instantiation of arbitrary objects. Consider yaml.safe_load().",
+      "cwe": "CWE-20"
+    },
+    {
+      "id": "SAST-954035",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B201",
+      "title": "A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code",
+      "severity": "HIGH",
+      "file": "app/app.py",
+      "line": 65,
+      "detail": "flask_debug_true: A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.",
+      "cwe": "CWE-94"
+    },
+    {
+      "id": "SAST-c536ca",
+      "tool": "bandit",
+      "category": "sast",
+      "rule_id": "B104",
+      "title": "Possible binding to all interfaces",
+      "severity": "MEDIUM",
+      "file": "app/app.py",
+      "line": 65,
+      "detail": "hardcoded_bind_all_interfaces: Possible binding to all interfaces.",
+      "cwe": "CWE-605"
+    },
+    {
+      "id": "SCA-d5c909",
+      "tool": "amazon-inspector",
+      "category": "sca",
+      "rule_id": "SCA-flask",
+      "title": "flask 2.0.1: 2 known vulnerabilities",
+      "severity": "HIGH",
+      "file": "app/requirements.txt",
+      "line": 0,
+      "detail": "Advisories: CVE-2023-30861, CVE-2026-27205. Upgrade to a release that fixes all of them.",
+      "cwe": "CWE-1395"
+    },
+    {
+      "id": "SCA-6f4b02",
+      "tool": "amazon-inspector",
+      "category": "sca",
+      "rule_id": "SCA-jinja2",
+      "title": "jinja2 2.11.2: 5 known vulnerabilities",
+      "severity": "HIGH",
+      "file": "app/requirements.txt",
+      "line": 0,
+      "detail": "Advisories: CVE-2020-28493, CVE-2024-22195, CVE-2024-34064, CVE-2024-56326, CVE-2025-27516. Upgrade to a release that fixes all of them.",
+      "cwe": "CWE-1395"
+    },
+    {
+      "id": "SCA-35cf15",
+      "tool": "amazon-inspector",
+      "category": "sca",
+      "rule_id": "SCA-pyyaml",
+      "title": "pyyaml 5.3.1: 1 known vulnerability",
+      "severity": "CRITICAL",
+      "file": "app/requirements.txt",
+      "line": 0,
+      "detail": "Advisories: CVE-2020-14343. Upgrade to a release that fixes all of them.",
+      "cwe": "CWE-1395"
+    },
+    {
+      "id": "SCA-6889d2",
+      "tool": "amazon-inspector",
+      "category": "sca",
+      "rule_id": "SCA-requests",
+      "title": "requests 2.25.1: 4 known vulnerabilities",
+      "severity": "MEDIUM",
+      "file": "app/requirements.txt",
+      "line": 0,
+      "detail": "Advisories: CVE-2023-32681, CVE-2024-35195, CVE-2024-47081, CVE-2026-25645. Upgrade to a release that fixes all of them.",
+      "cwe": "CWE-1395"
+    },
+    {
+      "id": "SCA-37a436",
+      "tool": "amazon-inspector",
+      "category": "sca",
+      "rule_id": "SCA-werkzeug",
+      "title": "werkzeug 2.0.1: 11 known vulnerabilities",
+      "severity": "CRITICAL",
+      "file": "app/requirements.txt",
+      "line": 0,
+      "detail": "Advisories: CVE-2022-29361, CVE-2023-23934, CVE-2023-25577, CVE-2023-46136, CVE-2024-34069 and 6 more. Upgrade to a release that fixes all of them.",
+      "cwe": "CWE-1395"
+    },
+    {
+      "id": "IAC-281af2",
+      "tool": "iac-policy",
+      "category": "iac",
+      "rule_id": "IAC001",
+      "title": "Base image is not pinned",
+      "severity": "MEDIUM",
+      "file": "app/Dockerfile",
+      "line": 1,
+      "detail": "'FROM python:latest' pulls a moving tag; builds are not reproducible.",
+      "cwe": "CWE-1357"
+    },
+    {
+      "id": "IAC-30626d",
+      "tool": "iac-policy",
+      "category": "iac",
+      "rule_id": "IAC002",
+      "title": "Remote file added without integrity check",
+      "severity": "HIGH",
+      "file": "app/Dockerfile",
+      "line": 2,
+      "detail": "ADD from a URL downloads unverified content into the image.",
+      "cwe": "CWE-494"
+    },
+    {
+      "id": "IAC-7a704f",
+      "tool": "iac-policy",
+      "category": "iac",
+      "rule_id": "IAC003",
+      "title": "Container runs as root",
+      "severity": "HIGH",
+      "file": "app/Dockerfile",
+      "line": 0,
+      "detail": "No USER instruction; the process keeps root inside the container.",
+      "cwe": "CWE-250"
+    },
+    {
+      "id": "IAC-80452a",
+      "tool": "iac-policy",
+      "category": "iac",
+      "rule_id": "IAC010",
+      "title": "Pod shares the host network",
+      "severity": "HIGH",
+      "file": "app/k8s/deployment.yaml",
+      "line": 0,
+      "detail": "hostNetwork: true removes network isolation from the node.",
+      "cwe": "CWE-668"
+    },
+    {
+      "id": "IAC-c56a0f",
+      "tool": "iac-policy",
+      "category": "iac",
+      "rule_id": "IAC011",
+      "title": "Privileged container",
+      "severity": "CRITICAL",
+      "file": "app/k8s/deployment.yaml",
+      "line": 0,
+      "detail": "Container 'shoplite' is privileged: a compromise is a node compromise.",
+      "cwe": "CWE-250"
+    },
+    {
+      "id": "IAC-2eb392",
+      "tool": "iac-policy",
+      "category": "iac",
+      "rule_id": "IAC012",
+      "title": "runAsNonRoot is not enforced",
+      "severity": "MEDIUM",
+      "file": "app/k8s/deployment.yaml",
+      "line": 0,
+      "detail": "Container 'shoplite' may start as uid 0.",
+      "cwe": "CWE-250"
+    },
+    {
+      "id": "IAC-e9978f",
+      "tool": "iac-policy",
+      "category": "iac",
+      "rule_id": "IAC013",
+      "title": "No resource limits",
+      "severity": "LOW",
+      "file": "app/k8s/deployment.yaml",
+      "line": 0,
+      "detail": "Container 'shoplite' can exhaust node CPU and memory.",
+      "cwe": "CWE-770"
+    }
+  ],
+  "triage": {
+    "source": "claude via bedrock (claude-opus-5-5)",
+    "executive_summary": "This release must not ship: the service has several remotely exploitable remote-code-execution paths on public routes (shell command injection in /ping, pickle deserialization in /cart/restore, unsafe YAML in /config, and the Werkzeug debug console bound to 0.0.0.0), plus SQL injection on login and AWS/database credentials committed to source. The Kubernetes deployment runs the container privileged on the host network, so any one of those code flaws becomes a full node compromise, and outdated Flask/Werkzeug/Jinja2/PyYAML/requests packages add known CVEs. Fixing the P0/P1 items (rotating the leaked credentials, patching the five dangerous routes, disabling debug, upgrading dependencies, and hardening the deployment manifest) is roughly a few days of focused work, after which the remaining items can be scheduled.",
+    "items": [
+      {
+        "finding_id": "SECRET-c674e7",
+        "priority": "P0",
+        "exploitability": "Anyone with repository read access (or the built image, since COPY . /srv ships source) obtains the credential.",
+        "rationale": "Hard-coded credential committed to source control. The comment says the values are fake, but that cannot be verified, and the pattern alongside an AKIA key indicates a real secret. Treat it as live until confirmed otherwise.",
+        "fix": "Revoke and rotate the credential now. Remove it from app.py and load it from an environment variable or secret manager (os.environ['SHOP_API_KEY'] via a Kubernetes Secret). Purge it from git history with git filter-repo or BFG. Add a pre-commit secret scan.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SECRET-b85589",
+        "priority": "P0",
+        "exploitability": "An AWS key ID plus a nearby secret gives direct cloud API access to anyone who reads the repo or image.",
+        "rationale": "The AKIA prefix is a genuine long-term IAM access key format. A leaked AWS key is a live credential exposure regardless of the 'fake values' comment.",
+        "fix": "Deactivate and delete the IAM access key in AWS IAM and review CloudTrail for misuse. Replace it with an IAM role (IRSA on EKS) so no static keys are needed. Remove it from the code and git history.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SECRET-5ec96f",
+        "priority": "P0",
+        "exploitability": "A hard-coded password (likely the AWS secret or DB/admin password) is readable from the repo and image.",
+        "rationale": "This is a live credential exposure under the same conditions as the other two secrets.",
+        "fix": "Rotate the password or secret key and remove it from source. Inject it at runtime from a Kubernetes Secret or secret manager, purge it from git history, and add a .dockerignore so the source and .git are not baked into images unnecessarily.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SAST-fee9e6",
+        "priority": "P3",
+        "exploitability": "An import alone is not exploitable; the real risk is tracked in SAST-5b51f5.",
+        "rationale": "This is an informational blacklist hit on the import statement and duplicates the pickle.loads finding.",
+        "fix": "Remove 'import pickle' once /cart/restore is migrated to JSON.",
+        "likely_false_positive": true
+      },
+      {
+        "finding_id": "SAST-3b3e53",
+        "priority": "P3",
+        "exploitability": "An import alone is not exploitable; the real risk is tracked in SAST-d98951.",
+        "rationale": "This is an informational import warning that duplicates the shell=True finding.",
+        "fix": "Keep subprocess only if needed, using list arguments without shell=True, or remove it entirely if /ping is reimplemented.",
+        "likely_false_positive": true
+      },
+      {
+        "finding_id": "SAST-dd96ee",
+        "priority": "P1",
+        "exploitability": "This requires a database leak first (for example via the login SQL injection). Unsalted MD5 hashes can then be cracked almost instantly.",
+        "rationale": "MD5 is used as the password hash on the login route. It is not directly remotely exploitable, but combined with SQL injection the credential store is effectively plaintext.",
+        "fix": "Hash passwords with argon2-cffi or bcrypt (or werkzeug.security.generate_password_hash/check_password_hash). Verify with a constant-time check and rehash existing users on their next login.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SAST-3c9cfb",
+        "priority": "P0",
+        "exploitability": "Unauthenticated POST /login with username=' OR 1=1-- bypasses authentication; UNION-based payloads can also dump the users table.",
+        "rationale": "Untrusted form input is interpolated directly into SQL on an exposed login route. The scanner rated this MEDIUM; it is raised because it is a trivially exploitable authentication bypass.",
+        "fix": "Use parameterized queries: get_db().execute('SELECT id, pw FROM users WHERE name = ?', (username,)), then verify the password hash in Python.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SAST-d98951",
+        "priority": "P0",
+        "exploitability": "GET /ping?host=127.0.0.1;id executes arbitrary shell commands as root, and the container is privileged on the host network.",
+        "rationale": "Unauthenticated request input reaches a shell. This is direct remote code execution, and the deployment settings amplify it to node compromise.",
+        "fix": "Validate host with ipaddress.ip_address() or a strict hostname regex. Call subprocess.run(['ping', '-c', '1', host], shell=False, timeout=5, capture_output=True). Note that -n is the Windows flag and Linux uses -c. Better still, remove the endpoint.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SAST-5b51f5",
+        "priority": "P0",
+        "exploitability": "A POST of a crafted pickle payload with __reduce__ to /cart/restore gives remote code execution with no authentication.",
+        "rationale": "pickle.loads runs on the raw request body of an exposed route. The scanner rated this MEDIUM; it is raised because it is trivial RCE.",
+        "fix": "Replace it with cart = request.get_json(force=True) and validate the schema (a list of {sku, qty}). If integrity of client-held state is needed, sign it with itsdangerous instead of using pickle.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SAST-004247",
+        "priority": "P0",
+        "exploitability": "A POST of YAML containing !!python/object/apply:os.system to /config executes commands, worsened by pyyaml 5.3.1 (CVE-2020-14343).",
+        "rationale": "yaml.Loader on the untrusted request body of an exposed route allows arbitrary object construction, which is RCE. The scanner rated this MEDIUM; it is raised for that reason.",
+        "fix": "Use yaml.safe_load(request.data), and check that the result is a dict before calling list(config). Also upgrade PyYAML (SCA-35cf15).",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SAST-954035",
+        "priority": "P0",
+        "exploitability": "If the app is started via 'python app.py' (the Dockerfile has no visible CMD to confirm otherwise), the Werkzeug debugger is reachable on 0.0.0.0:5000. Any exception gives an interactive Python console, and the PIN protection is weak in older Werkzeug versions.",
+        "rationale": "An exposed debug console is RCE. Combined with the bind-all setting and hostNetwork, it is reachable from the node network.",
+        "fix": "Remove debug=True and drive it from config (debug=os.environ.get('FLASK_DEBUG')=='1', default off). Run in production under gunicorn (gunicorn -b 0.0.0.0:5000 app:app) instead of app.run.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SAST-c536ca",
+        "priority": "P2",
+        "exploitability": "Binding to 0.0.0.0 is normal and necessary inside a container. The danger comes from the combination with debug=True and hostNetwork.",
+        "rationale": "This is expected for containerized services. It is retained as P2 only because, with hostNetwork: true, it exposes the port on the node's interfaces.",
+        "fix": "Keep 0.0.0.0 inside the container under gunicorn, but remove hostNetwork and expose the app only via a Service/Ingress. For local dev runs, bind to 127.0.0.1.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SCA-d5c909",
+        "priority": "P1",
+        "exploitability": "CVE-2023-30861 can leak session cookies through caching proxies under specific conditions. It is limited in this app, which does not visibly use sessions.",
+        "rationale": "This is an outdated framework with known advisories. It is low direct exploitability here but is a cheap fix, and it should move together with the Werkzeug/Jinja2 upgrade.",
+        "fix": "Pin flask>=3.1.x (the latest patched release) in requirements.txt, together with matching werkzeug and jinja2 versions. Run the test suite afterwards.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SCA-6f4b02",
+        "priority": "P2",
+        "exploitability": "The CVEs are ReDoS, xmlattr injection and sandbox escapes. No template rendering of user input or sandbox use is visible in this app.",
+        "rationale": "The vulnerable code paths do not appear to be reached. It is still an outdated transitive dependency.",
+        "fix": "Pin jinja2>=3.1.6 alongside the Flask upgrade.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SCA-35cf15",
+        "priority": "P0",
+        "exploitability": "CVE-2020-14343 gives arbitrary code execution via full_load/FullLoader. Untrusted YAML is parsed on /config.",
+        "rationale": "The vulnerable library is directly reachable from an exposed route with attacker-controlled input.",
+        "fix": "Pin PyYAML>=6.0.2 and switch to yaml.safe_load (SAST-004247).",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SCA-6889d2",
+        "priority": "P2",
+        "exploitability": "The CVEs cover proxy auth leaks, cert verification persistence and .netrc credential leaks. requests is not used in the shown code paths.",
+        "rationale": "There is no visible reachable usage, so impact is limited. It is an upgrade-hygiene item.",
+        "fix": "Pin requests>=2.32.4, or later as needed to cover CVE-2026-25645, or remove it if unused.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "SCA-37a436",
+        "priority": "P1",
+        "exploitability": "This is the server actually handling requests via app.run. CVE-2024-34069 is debugger RCE, and others cover multipart DoS and cookie issues; several are reachable while debug is on.",
+        "rationale": "There are many known vulnerabilities in the request-handling layer, including one in the debugger that is exposed here. It drops to routine once debug is off, but it blocks release as a cheap, high-value upgrade.",
+        "fix": "Pin werkzeug>=3.1.x (latest patch) together with flask 3.1.x. Serve via gunicorn rather than the Werkzeug dev server.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "IAC-281af2",
+        "priority": "P2",
+        "exploitability": "This is not directly exploitable; it is a supply-chain and reproducibility risk.",
+        "rationale": "A moving tag can silently change the runtime and pull in untested or compromised layers.",
+        "fix": "Use FROM python:3.12-slim@sha256:<digest> and update it via Dependabot or Renovate.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "IAC-30626d",
+        "priority": "P1",
+        "exploitability": "Whoever controls example.com, or anyone who can tamper with the download in transit, can inject content into the image. Exploitation depends on the script being executed, which is not shown.",
+        "rationale": "Unverified remote content enters the build. It is a supply-chain risk with limited direct reach, but trivial to fix.",
+        "fix": "Vendor bootstrap.sh into the repo and COPY it. Alternatively, use ADD --checksum=sha256:<hash> https://... (BuildKit), or curl the file and verify it with sha256sum -c before use. Remove the line if the script is unused.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "IAC-7a704f",
+        "priority": "P1",
+        "exploitability": "Any of the RCE flaws runs as root in the container. Combined with privileged mode, this makes container escape trivial.",
+        "rationale": "The scanner's severity is justified given the multiple reachable RCE paths.",
+        "fix": "Add RUN useradd -r -u 10001 app && chown -R app /srv, then USER 10001 after pip install. Also add a CMD running gunicorn.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "IAC-80452a",
+        "priority": "P1",
+        "exploitability": "After RCE, an attacker can reach node-local services, the kubelet, and cloud metadata. The debug port is also exposed on the node IP.",
+        "rationale": "This removes network isolation and amplifies every application flaw.",
+        "fix": "Remove hostNetwork: true (or set it to false), expose the app via a ClusterIP Service/Ingress, and add a NetworkPolicy restricting egress, including blocking 169.254.169.254.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "IAC-c56a0f",
+        "priority": "P0",
+        "exploitability": "The /ping or /cart/restore RCE in a privileged pod leads to host device access and trivial node escape, which is cluster compromise.",
+        "rationale": "A privileged container combined with confirmed unauthenticated RCE is an immediate path to node takeover.",
+        "fix": "Set securityContext: {privileged: false, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}. Enforce this with Pod Security Admission at the 'restricted' level on the namespace.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "IAC-2eb392",
+        "priority": "P2",
+        "exploitability": "This is defence in depth that complements IAC-7a704f.",
+        "rationale": "Without enforcement, the image may run as uid 0 even after the Dockerfile is fixed.",
+        "fix": "Add securityContext: {runAsNonRoot: true, runAsUser: 10001} to the pod or container spec.",
+        "likely_false_positive": false
+      },
+      {
+        "finding_id": "IAC-e9978f",
+        "priority": "P3",
+        "exploitability": "This is a denial-of-service and noisy-neighbour risk only.",
+        "rationale": "The impact is availability only.",
+        "fix": "Add resources: {requests: {cpu: 100m, memory: 128Mi}, limits: {cpu: 500m, memory: 256Mi}}, tuned to observed usage.",
+        "likely_false_positive": false
+      }
+    ]
+  },
+  "monitoring": {
+    "log_lines": 3264,
+    "clients": 123,
+    "flagged": 4,
+    "injected_attackers": 3,
+    "attackers_caught": 3,
+    "false_alarms": 1,
+    "anomalies": [
+      {
+        "ip": "203.0.113.7",
+        "score": 0.854,
+        "is_injected_attack": true,
+        "attack_type": "credential stuffing",
+        "reasons": [
+          "failed_logins = 393.00 (typical 0.00)",
+          "distinct_paths = 1.00 (typical 6.00)",
+          "night_share = 1.00 (typical 0.00)"
+        ]
+      },
+      {
+        "ip": "198.51.100.23",
+        "score": 0.818,
+        "is_injected_attack": true,
+        "attack_type": "injection probing",
+        "reasons": [
+          "distinct_paths = 180.00 (typical 6.00)",
+          "night_share = 0.27 (typical 0.00)",
+          "requests = 180.00 (typical 22.00)"
+        ]
+      },
+      {
+        "ip": "192.0.2.99",
+        "score": 0.806,
+        "is_injected_attack": true,
+        "attack_type": "data exfiltration",
+        "reasons": [
+          "distinct_paths = 1.00 (typical 6.00)",
+          "night_share = 1.00 (typical 0.00)",
+          "avg_response_kb = 9039.96 (typical 18.08)"
+        ]
+      },
+      {
+        "ip": "10.0.0.104",
+        "score": 0.594,
+        "is_injected_attack": false,
+        "attack_type": "none (normal client)",
+        "reasons": [
+          "distinct_paths = 3.00 (typical 6.00)",
+          "failed_logins = 1.00 (typical 0.00)"
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A03",
+      "name": "Injection",
+      "status": "FAIL",
+      "evidence": "2 blocking finding(s): SAST-3c9cfb, SAST-d98951"
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A02",
+      "name": "Cryptographic Failures",
+      "status": "FAIL",
+      "evidence": "1 blocking finding(s): SAST-dd96ee"
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A05",
+      "name": "Security Misconfiguration",
+      "status": "FAIL",
+      "evidence": "5 blocking finding(s): SAST-954035, IAC-30626d, IAC-7a704f, IAC-80452a"
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A06",
+      "name": "Vulnerable and Outdated Components",
+      "status": "FAIL",
+      "evidence": "3 blocking finding(s): SCA-d5c909, SCA-35cf15, SCA-37a436"
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A07",
+      "name": "Identification and Authentication Failures",
+      "status": "FAIL",
+      "evidence": "3 blocking finding(s): SECRET-c674e7, SECRET-b85589, SECRET-5ec96f"
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A08",
+      "name": "Software and Data Integrity Failures",
+      "status": "FAIL",
+      "evidence": "2 blocking finding(s): SAST-5b51f5, IAC-30626d"
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A09",
+      "name": "Security Logging and Monitoring Failures",
+      "status": "PASS",
+      "evidence": "Anomaly detection ran on runtime logs in this pipeline run."
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "PW.4",
+      "name": "Reuse existing, well-secured software",
+      "status": "FAIL",
+      "evidence": "3 blocking finding(s): SCA-d5c909, SCA-35cf15, SCA-37a436"
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "PW.7",
+      "name": "Review and analyse code to identify vulnerabilities",
+      "status": "FAIL",
+      "evidence": "9 blocking finding(s): SECRET-c674e7, SECRET-b85589, SECRET-5ec96f, SAST-dd96ee"
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "PW.9",
+      "name": "Configure software to have secure settings by default",
+      "status": "FAIL",
+      "evidence": "4 blocking finding(s): IAC-30626d, IAC-7a704f, IAC-80452a, IAC-c56a0f"
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "RV.1",
+      "name": "Identify and confirm vulnerabilities on an ongoing basis",
+      "status": "FAIL",
+      "evidence": "9 blocking finding(s): SAST-dd96ee, SAST-3c9cfb, SAST-d98951, SAST-5b51f5"
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.5.17",
+      "name": "Authentication information",
+      "status": "FAIL",
+      "evidence": "3 blocking finding(s): SECRET-c674e7, SECRET-b85589, SECRET-5ec96f"
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.8",
+      "name": "Management of technical vulnerabilities",
+      "status": "FAIL",
+      "evidence": "3 blocking finding(s): SCA-d5c909, SCA-35cf15, SCA-37a436"
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.9",
+      "name": "Configuration management",
+      "status": "FAIL",
+      "evidence": "4 blocking finding(s): IAC-30626d, IAC-7a704f, IAC-80452a, IAC-c56a0f"
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.16",
+      "name": "Monitoring activities",
+      "status": "PASS",
+      "evidence": "Anomaly detection ran on runtime logs in this pipeline run."
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.24",
+      "name": "Use of cryptography",
+      "status": "FAIL",
+      "evidence": "1 blocking finding(s): SAST-dd96ee"
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.28",
+      "name": "Secure coding",
+      "status": "FAIL",
+      "evidence": "6 blocking finding(s): SAST-dd96ee, SAST-3c9cfb, SAST-d98951, SAST-5b51f5"
+    }
+  ],
+  "gate": {
+    "passed": false,
+    "violations": [
+      "10 P0 finding(s); policy allows 0",
+      "6 P1 finding(s); policy allows 0",
+      "3 hard-coded secret(s); policy allows none",
+      "15 compliance control(s) failing; policy allows 0"
+    ],
+    "priority_counts": {
+      "P0": 10,
+      "P1": 6,
+      "P2": 5,
+      "P3": 3
+    }
+  },
+  "notes": {
+    "sca": "Amazon Inspector vulnerability database",
+    "triage": "live Claude call via bedrock (response saved for replay)"
+  }
+}

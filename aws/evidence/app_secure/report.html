@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DevSecOps run - app_secure</title><style>
+:root{--bg:#f6f7f9;--card:#ffffff;--ink:#16202c;--muted:#5b6777;--line:#dfe3e8;
+--bad:#b3261e;--warn:#9a5b00;--good:#1b6e3c;--accent:#1f4e8c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:18px;margin:34px 0 10px}
+.sub{color:var(--muted);margin:0 0 20px}
+.verdict{padding:16px 20px;border-radius:10px;color:#fff;font-size:19px;font-weight:600}
+.verdict.pass{background:var(--good)}.verdict.fail{background:var(--bad)}
+.verdict ul{margin:8px 0 0;font-size:15px;font-weight:400}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.tile b{display:block;font-size:28px}.tile span{color:var(--muted);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;white-space:nowrap}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.P0,.FAIL,.CRITICAL{background:var(--bad)}.P1,.HIGH{background:#c2410c}
+.P2,.WARN,.MEDIUM{background:var(--warn)}.P3,.LOW{background:#5b6777}.PASS{background:var(--good)}
+code{font:13px Consolas,monospace;background:#eef1f5;padding:1px 5px;border-radius:4px}
+.note{color:var(--muted);font-size:13px;margin-top:8px}
+</style></head>
+<body><main>
+<h1>AI-driven DevSecOps pipeline</h1>
+<p class="sub">Target <code>app_secure</code> &middot; run at 2026-11-17 04:49</p>
+
+<div class="verdict pass">RELEASE GATE: PASSED</div>
+
+<div class="tiles">
+<div class="tile"><b>0</b><span>findings from 4 scanners</span></div>
+<div class="tile"><b>0</b><span>P0 - fix before release</span></div>
+<div class="tile"><b>0</b><span>P1 - fix this sprint</span></div>
+<div class="tile"><b>3/3</b><span>injected attackers detected</span></div>
+<div class="tile"><b>17/17</b><span>controls passing</span></div>
+</div>
+
+<h2>AI triage summary</h2>
+<div class="card">No findings to triage.
+<div class="note">Triage source: none &middot; nothing to triage</div></div>
+
+<h2>Findings, ordered by triage priority</h2>
+<div class="card">No findings.
+<div class="note">Dependency advisories: Amazon Inspector vulnerability database</div></div>
+
+<h2>Runtime threat detection (Isolation Forest)</h2>
+<div class="card"><div class="scroll"><table><thead><tr><th>Client</th><th>Anomaly score</th><th>Ground truth</th><th>Why it stands out</th></tr></thead><tbody><tr><td><code>203.0.113.7</code></td><td>0.854</td><td>credential stuffing</td><td>failed_logins = 393.00 (typical 0.00)<br>distinct_paths = 1.00 (typical 6.00)<br>night_share = 1.00 (typical 0.00)</td></tr><tr><td><code>198.51.100.23</code></td><td>0.818</td><td>injection probing</td><td>distinct_paths = 180.00 (typical 6.00)<br>night_share = 0.27 (typical 0.00)<br>requests = 180.00 (typical 22.00)</td></tr><tr><td><code>192.0.2.99</code></td><td>0.806</td><td>data exfiltration</td><td>distinct_paths = 1.00 (typical 6.00)<br>night_share = 1.00 (typical 0.00)<br>avg_response_kb = 9039.96 (typical 18.08)</td></tr><tr><td><code>10.0.0.104</code></td><td>0.594</td><td>none (normal client)</td><td>distinct_paths = 3.00 (typical 6.00)<br>failed_logins = 1.00 (typical 0.00)</td></tr></tbody></table></div>
+<div class="note">3264 synthetic log lines from 123 clients;
+4 flagged, 1 false alarm(s). Ground truth is known because the attacks were injected.</div></div>
+
+<h2>Continuous compliance</h2>
+<div class="card"><div class="scroll"><table><thead><tr><th>Framework</th><th>Control</th><th>Status</th><th>Evidence from this run</th></tr></thead><tbody><tr><td>OWASP Top 10:2021</td><td><b>A03</b> Injection</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>OWASP Top 10:2021</td><td><b>A02</b> Cryptographic Failures</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>OWASP Top 10:2021</td><td><b>A05</b> Security Misconfiguration</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>OWASP Top 10:2021</td><td><b>A06</b> Vulnerable and Outdated Components</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>OWASP Top 10:2021</td><td><b>A07</b> Identification and Authentication Failures</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>OWASP Top 10:2021</td><td><b>A08</b> Software and Data Integrity Failures</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>OWASP Top 10:2021</td><td><b>A09</b> Security Logging and Monitoring Failures</td><td><span class="pill PASS">PASS</span></td><td>Anomaly detection ran on runtime logs in this pipeline run.</td></tr><tr><td>NIST SSDF 1.1</td><td><b>PW.4</b> Reuse existing, well-secured software</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>NIST SSDF 1.1</td><td><b>PW.7</b> Review and analyse code to identify vulnerabilities</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>NIST SSDF 1.1</td><td><b>PW.9</b> Configure software to have secure settings by default</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>NIST SSDF 1.1</td><td><b>RV.1</b> Identify and confirm vulnerabilities on an ongoing basis</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>ISO/IEC 27001:2022</td><td><b>A.5.17</b> Authentication information</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>ISO/IEC 27001:2022</td><td><b>A.8.8</b> Management of technical vulnerabilities</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>ISO/IEC 27001:2022</td><td><b>A.8.9</b> Configuration management</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>ISO/IEC 27001:2022</td><td><b>A.8.16</b> Monitoring activities</td><td><span class="pill PASS">PASS</span></td><td>Anomaly detection ran on runtime logs in this pipeline run.</td></tr><tr><td>ISO/IEC 27001:2022</td><td><b>A.8.24</b> Use of cryptography</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr><tr><td>ISO/IEC 27001:2022</td><td><b>A.8.28</b> Secure coding</td><td><span class="pill PASS">PASS</span></td><td>No related findings in this run.</td></tr></tbody></table></div>
+<div class="note">Illustrative mapping for teaching. PASS means no contradicting evidence in this run, not a certification.</div></div>
+</main></body></html>

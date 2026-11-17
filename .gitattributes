@@ -1,0 +1,2 @@
+# Keep Unix line endings everywhere: these files are built and run on Linux hosts.
+* text=auto eol=lf

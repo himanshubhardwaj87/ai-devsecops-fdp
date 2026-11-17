@@ -1,0 +1,198 @@
+{
+  "target": "app_secure",
+  "generated_at": "2026-11-17 04:49",
+  "findings": [],
+  "triage": {
+    "source": "none",
+    "executive_summary": "No findings to triage.",
+    "items": []
+  },
+  "monitoring": {
+    "log_lines": 3264,
+    "clients": 123,
+    "flagged": 4,
+    "injected_attackers": 3,
+    "attackers_caught": 3,
+    "false_alarms": 1,
+    "anomalies": [
+      {
+        "ip": "203.0.113.7",
+        "score": 0.854,
+        "is_injected_attack": true,
+        "attack_type": "credential stuffing",
+        "reasons": [
+          "failed_logins = 393.00 (typical 0.00)",
+          "distinct_paths = 1.00 (typical 6.00)",
+          "night_share = 1.00 (typical 0.00)"
+        ]
+      },
+      {
+        "ip": "198.51.100.23",
+        "score": 0.818,
+        "is_injected_attack": true,
+        "attack_type": "injection probing",
+        "reasons": [
+          "distinct_paths = 180.00 (typical 6.00)",
+          "night_share = 0.27 (typical 0.00)",
+          "requests = 180.00 (typical 22.00)"
+        ]
+      },
+      {
+        "ip": "192.0.2.99",
+        "score": 0.806,
+        "is_injected_attack": true,
+        "attack_type": "data exfiltration",
+        "reasons": [
+          "distinct_paths = 1.00 (typical 6.00)",
+          "night_share = 1.00 (typical 0.00)",
+          "avg_response_kb = 9039.96 (typical 18.08)"
+        ]
+      },
+      {
+        "ip": "10.0.0.104",
+        "score": 0.594,
+        "is_injected_attack": false,
+        "attack_type": "none (normal client)",
+        "reasons": [
+          "distinct_paths = 3.00 (typical 6.00)",
+          "failed_logins = 1.00 (typical 0.00)"
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A03",
+      "name": "Injection",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A02",
+      "name": "Cryptographic Failures",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A05",
+      "name": "Security Misconfiguration",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A06",
+      "name": "Vulnerable and Outdated Components",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A07",
+      "name": "Identification and Authentication Failures",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A08",
+      "name": "Software and Data Integrity Failures",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "OWASP Top 10:2021",
+      "control_id": "A09",
+      "name": "Security Logging and Monitoring Failures",
+      "status": "PASS",
+      "evidence": "Anomaly detection ran on runtime logs in this pipeline run."
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "PW.4",
+      "name": "Reuse existing, well-secured software",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "PW.7",
+      "name": "Review and analyse code to identify vulnerabilities",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "PW.9",
+      "name": "Configure software to have secure settings by default",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "NIST SSDF 1.1",
+      "control_id": "RV.1",
+      "name": "Identify and confirm vulnerabilities on an ongoing basis",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.5.17",
+      "name": "Authentication information",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.8",
+      "name": "Management of technical vulnerabilities",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.9",
+      "name": "Configuration management",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.16",
+      "name": "Monitoring activities",
+      "status": "PASS",
+      "evidence": "Anomaly detection ran on runtime logs in this pipeline run."
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.24",
+      "name": "Use of cryptography",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    },
+    {
+      "framework": "ISO/IEC 27001:2022",
+      "control_id": "A.8.28",
+      "name": "Secure coding",
+      "status": "PASS",
+      "evidence": "No related findings in this run."
+    }
+  ],
+  "gate": {
+    "passed": true,
+    "violations": [],
+    "priority_counts": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 0
+    }
+  },
+  "notes": {
+    "sca": "Amazon Inspector vulnerability database",
+    "triage": "nothing to triage"
+  }
+}

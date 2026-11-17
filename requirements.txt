@@ -1,0 +1,8 @@
+# Tooling for the pipeline itself (not the demo app).
+bandit>=1.8
+pip-audit>=2.9
+pyyaml>=6.0
+numpy>=2.1
+scikit-learn>=1.6
+anthropic>=0.80
+pytest>=8.0

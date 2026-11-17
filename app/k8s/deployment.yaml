@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shoplite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shoplite
+  template:
+    metadata:
+      labels:
+        app: shoplite
+    spec:
+      hostNetwork: true
+      containers:
+        - name: shoplite
+          image: shoplite:latest
+          ports:
+            - containerPort: 5000
+          securityContext:
+            privileged: true

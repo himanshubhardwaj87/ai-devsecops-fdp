@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shoplite
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shoplite
+  template:
+    metadata:
+      labels:
+        app: shoplite
+    spec:
+      containers:
+        - name: shoplite
+          image: shoplite:1.4.2
+          ports:
+            - containerPort: 5000
+          securityContext:
+            privileged: false
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi

@@ -1,0 +1,27 @@
+{
+  "version": "0",
+  "id": "00000000-0000-0000-0000-000000000001",
+  "detail-type": "Inspector2 Finding",
+  "source": "aws.inspector2",
+  "account": "111122223333",
+  "region": "ap-south-1",
+  "resources": ["arn:aws:ecr:ap-south-1:111122223333:repository/shoplite-devsecops/sha256:example"],
+  "detail": {
+    "severity": "CRITICAL",
+    "status": "ACTIVE",
+    "type": "PACKAGE_VULNERABILITY",
+    "title": "SAMPLE - CVE-0000-00000 in a base image package (rehearsal event, not a real finding)",
+    "resources": [
+      {
+        "id": "arn:aws:ecr:ap-south-1:111122223333:repository/shoplite-devsecops/sha256:example",
+        "type": "AWS_ECR_CONTAINER_IMAGE",
+        "details": {
+          "awsEcrContainerImage": {
+            "repositoryName": "shoplite-devsecops",
+            "imageTags": ["prod"]
+          }
+        }
+      }
+    ]
+  }
+}
